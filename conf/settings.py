@@ -1,3 +1,5 @@
+LOGIN_URL = "uw_saml.views.LoginView"
+
 UW_SAML = {
     "strict": True,
     "debug": True,

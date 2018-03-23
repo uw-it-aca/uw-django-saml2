@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.views.generic.base import View
 from uw_saml import DjangoSAML
 
@@ -26,10 +26,11 @@ class SSOView(View):
     def post(self, request, *args, **kwargs):
         auth = DjangoSAML(request)
         auth.process_response()
+
         errors = auth.get_errors()
         if errors:
             # TODO: handle login errors
             raise Exception(errors)
 
         return HttpResponseRedirect(
-            auth.redirect_to(request.form['RelayState']))
+            auth.redirect_to(request.get('post_data').get('RelayState')))
