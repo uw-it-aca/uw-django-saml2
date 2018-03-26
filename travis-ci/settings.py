@@ -81,14 +81,22 @@ UW_SAML = {
             'url': 'https://example.uw.edu/Shibboleth.sso/SAML2/POST',
             'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
         },
+        'singleLogoutService': {
+            'url': 'https://example.uw.edu/logout',
+            'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        },
         'NameIDFormat': 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
         'x509cert': '',
-        'privateKey': ''
+        'privateKey': '',
     },
     'idp': {
         'entityId': 'urn:mace:incommon:washington.edu',
         'singleSignOnService': {
             'url': 'https://idp.u.washington.edu/idp/profile/SAML2/Redirect/SSO',
+            'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        },
+        'singleLogoutService': {
+            'url': 'https://idp.u.washington.edu/idp/logout',
             'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
         },
         'x509cert': '',

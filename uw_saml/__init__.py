@@ -17,5 +17,6 @@ class DjangoSAML(OneLogin_Saml2_Auth):
             'post_data': request.POST.copy(),
             'query_string': request.META['QUERY_STRING']
         }
-        super(OneLogin_Saml2_Auth, self).__init__(
+
+        super(DjangoSAML, self).__init__(
             request_data, old_settings=getattr(settings, 'UW_SAML'))
