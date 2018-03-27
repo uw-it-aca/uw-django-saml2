@@ -26,15 +26,18 @@ class SSOView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         auth = DjangoSAML(request)
-
         try:
             auth.process_response()
-        except Exception as ex:
-            context = {
-                'name': ex,
-                'errors': auth.get_errors()
-            }
-            return self.render_to_response(context, status=500)
+            errors = auth.get_errors()
+            if len(errors):
+                context = {'errors': auth.get_errors()}
+            else:
+                request.session['samlUserdata'] = auth.get_attributes()
+                request.session['samlNameId'] = auth.get_nameid()
+                request.session['samlSessionIndex'] = auth.get_session_index()
+                return HttpResponseRedirect(auth.redirect_to())
 
-        return HttpResponseRedirect(
-            auth.redirect_to(request.get('post_data').get('RelayState')))
+        except Exception as ex:
+            context = {'error_msg': ex, 'errors': auth.get_errors()}
+
+        return self.render_to_response(context, status=500)
