@@ -82,12 +82,13 @@ UW_SAML = {
             'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
         },
         'singleLogoutService': {
-            'url': 'https://example.uw.edu/logout',
+            'url': 'https://example.uw.edu/saml/logout',
             'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
         },
         'NameIDFormat': 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
         'x509cert': '',
-        'privateKey': '',
+        # for encrypted saml assertions uncomment and add the private key
+        # 'privateKey': '',
     },
     'idp': {
         'entityId': 'urn:mace:incommon:washington.edu',
@@ -102,7 +103,7 @@ UW_SAML = {
         'x509cert': '',
     },
     'security': {
-        # for 2FA you would uncomment this line.
+        # for 2FA uncomment this line
         # 'requestedAuthnContext':  ['urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken']
     }
 }
