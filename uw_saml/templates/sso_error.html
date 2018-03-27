@@ -2,7 +2,7 @@
 <html class="no-js">
     <head></head>
     <body>
-        <h2>SSO Error: {{ name }}</h2>
+        <h2>SSO Error: {{ error_msg|default:"Login Failed" }}</h2>
 
         <ul>
         {% for error in errors %}

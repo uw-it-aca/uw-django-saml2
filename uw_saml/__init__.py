@@ -18,5 +18,8 @@ class DjangoSAML(OneLogin_Saml2_Auth):
             'query_string': request.META['QUERY_STRING']
         }
 
+        if request.GET.get('next'):
+            request_data['get_data']['RelayState'] = request.GET.get('next')
+
         super(DjangoSAML, self).__init__(
             request_data, old_settings=getattr(settings, 'UW_SAML'))

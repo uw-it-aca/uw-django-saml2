@@ -43,6 +43,8 @@ class SSOViewTest(TestCase):
         # Missing POST data
         request = RequestFactory().post(
             reverse('saml_sso'), HTTP_HOST='idp.uw.edu')
+        SessionMiddleware().process_request(request)
+        request.session.save()
 
         view_instance = SSOView.as_view()
         response = view_instance(request)
@@ -52,6 +54,8 @@ class SSOViewTest(TestCase):
         request = RequestFactory().post(
             reverse('saml_sso'), data={'SAMLResponse': None},
             HTTP_HOST='idp.uw.edu')
+        SessionMiddleware().process_request(request)
+        request.session.save()
 
         view_instance = SSOView.as_view()
         response = view_instance(request)
@@ -60,6 +64,8 @@ class SSOViewTest(TestCase):
         # Invalid HTTP method
         request = RequestFactory().get(
             reverse('saml_sso'), HTTP_HOST='idp.uw.edu')
+        SessionMiddleware().process_request(request)
+        request.session.save()
 
         view_instance = SSOView.as_view()
         response = view_instance(request)
