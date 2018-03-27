@@ -48,7 +48,7 @@ class SSOViewTest(TestCase):
 
         view_instance = SSOView.as_view()
         response = view_instance(request)
-        self.assertContains(response, 'SSO Error:', status_code=500)
+        self.assertContains(response, 'SSO Error:', status_code=400)
 
         # Invalid SAMLResponse
         request = RequestFactory().post(
@@ -59,7 +59,7 @@ class SSOViewTest(TestCase):
 
         view_instance = SSOView.as_view()
         response = view_instance(request)
-        self.assertContains(response, 'SSO Error:', status_code=500)
+        self.assertContains(response, 'SSO Error:', status_code=400)
 
         # Invalid HTTP method
         request = RequestFactory().get(
