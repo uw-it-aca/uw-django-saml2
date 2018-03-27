@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
 from django.views.generic.base import View, TemplateView
 from uw_saml import DjangoSAML
@@ -28,16 +29,20 @@ class SSOView(TemplateView):
         auth = DjangoSAML(request)
         try:
             auth.process_response()
-            errors = auth.get_errors()
-            if len(errors):
-                context = {'errors': auth.get_errors()}
-            else:
-                request.session['samlUserdata'] = auth.get_attributes()
-                request.session['samlNameId'] = auth.get_nameid()
-                request.session['samlSessionIndex'] = auth.get_session_index()
-                return HttpResponseRedirect(auth.redirect_to())
-
         except Exception as ex:
             context = {'error_msg': ex, 'errors': auth.get_errors()}
+            return self.render_to_response(context, status=400)
 
-        return self.render_to_response(context, status=500)
+        errors = auth.get_errors()
+        if len(errors):
+            return self.render_to_response({'errors': errors}, status=500)
+
+        request.session['samlUserdata'] = auth.get_attributes()
+        request.session['samlNameId'] = auth.get_nameid()
+        request.session['samlSessionIndex'] = auth.get_session_index()
+
+        user = authenticate(request, remote_user=auth.get_nameid())
+        if user is not None:
+            login(request, user)
+
+        return HttpResponseRedirect(auth.redirect_to())
