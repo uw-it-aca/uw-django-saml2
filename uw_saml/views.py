@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
@@ -19,6 +19,8 @@ class LogoutView(View):
 
         name_id = request.session.get('samlNameId')
         session_index = request.session.get('samlSessionIndex')
+
+        logout(request)  # Django logout
 
         return HttpResponseRedirect(
             auth.logout(name_id=name_id, session_index=session_index))
@@ -45,11 +47,10 @@ class SSOView(TemplateView):
         request.session['samlNameId'] = auth.get_nameid()
         request.session['samlSessionIndex'] = auth.get_session_index()
 
-        remote_user = request.session['samlUserdata']['uwnetid'][0]
-        return_url = request.POST.get('RelayState', '/')
-
-        user = authenticate(request, remote_user=remote_user)
+        # Django login
+        user = authenticate(request, remote_user=auth.get_remote_user())
         if user is not None:
             login(request, user)
 
+        return_url = request.POST.get('RelayState', '/')
         return HttpResponseRedirect(auth.redirect_to(return_url))
