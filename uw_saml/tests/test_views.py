@@ -3,6 +3,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory
 from uw_saml.views import LoginView, LogoutView, SSOView
+from uw_saml import OneLogin_Saml2_Auth
+from uw_saml.tests import MOCK_ATTRS
 import mock
 
 
@@ -39,10 +41,28 @@ class LogoutViewTest(TestCase):
 
 
 class SSOViewTest(TestCase):
+    def setUp(self):
+        self.request = RequestFactory().post(
+                reverse('saml_sso'), HTTP_HOST='example.uw.edu')
+        SessionMiddleware().process_request(self.request)
+        self.request.session.save()
+
+    @mock.patch.object(OneLogin_Saml2_Auth, 'get_attributes')
+    @mock.patch.object(OneLogin_Saml2_Auth, 'process_response')
+    def test_sso(self, mock_process_response, mock_get_attributes):
+        mock_get_attributes.return_value = MOCK_ATTRS
+
+        view_instance = SSOView.as_view()
+        response = view_instance(self.request)
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, 'http://example.uw.edu/')
+
+
+class SSOViewErrorTest(TestCase):
     def test_sso_error(self):
         # Missing POST data
         request = RequestFactory().post(
-            reverse('saml_sso'), HTTP_HOST='idp.uw.edu')
+            reverse('saml_sso'), HTTP_HOST='example.uw.edu')
         SessionMiddleware().process_request(request)
         request.session.save()
 
