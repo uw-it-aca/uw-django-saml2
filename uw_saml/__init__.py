@@ -28,11 +28,25 @@ class DjangoSAML(OneLogin_Saml2_Auth):
         """
         attribute_map = {
             'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
-            'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': 'affiliations',
             'urn:oid:1.3.6.1.4.1.5923.1.1.1.6': 'eppn',
-            'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations'
+            'urn:oid:1.2.840.113994.200.24': 'uwregid',
+            'urn:oid:0.9.2342.19200300.100.1.3': 'email',
+            'urn:oid:2.5.4.42': 'givenName',
+            'urn:oid:2.5.4.4': 'surname',
+            'urn:oid:1.2.840.113994.200.21': 'studentid',
+            'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': 'affiliations',
+            'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations',
+            'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': 'isMemberOf',
         }
 
         return {
             attribute_map.get(key, key): value for key, value in super(
                 DjangoSAML, self).get_attributes().items()}
+
+    def get_remote_user(self):
+        """
+        Return the login for the user, identified in settings by either
+        'uwnetid' (default) or 'eppn'.
+        """
+        user_attr = getattr(settings, 'SAML_USER_ATTRIBUTE', 'uwnetid')
+        return self.get_attributes()[user_attr][0]

@@ -14,7 +14,8 @@ Configure the `saml_login` URL in `uw_saml.urls.py` to be the LOGIN_URL in your
 `project/settings.py`:
 
 ```
-LOGIN_URL = 'uw_saml.views.LoginView'
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = reverse_lazy('saml_login')
 ```
 
 ### Add your SP config
@@ -36,7 +37,7 @@ Also, be sure to set `strict: True` for production usage!
 Add the uw_saml URLs to your `project/urls.py`:
 
 ```
-url(r'^', include('uw_saml.urls')),
+url(r'^saml/', include('uw_saml.urls')),
 ```
 
 ### Register your app as an SP
