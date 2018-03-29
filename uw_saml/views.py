@@ -8,8 +8,9 @@ from uw_saml import DjangoSAML
 
 class LoginView(View):
     def get(self, request, *args, **kwargs):
+        return_url = request.GET.get('next', '/')
         auth = DjangoSAML(request)
-        return HttpResponseRedirect(auth.login())
+        return HttpResponseRedirect(auth.login(return_to=return_url))
 
 
 class LogoutView(View):
@@ -44,8 +45,11 @@ class SSOView(TemplateView):
         request.session['samlNameId'] = auth.get_nameid()
         request.session['samlSessionIndex'] = auth.get_session_index()
 
-        user = authenticate(request, remote_user=auth.get_nameid())
+        remote_user = request.session['samlUserdata']['uwnetid'][0]
+        return_url = request.POST.get('RelayState', '/')
+
+        user = authenticate(request, remote_user=remote_user)
         if user is not None:
             login(request, user)
 
-        return HttpResponseRedirect(auth.redirect_to())
+        return HttpResponseRedirect(auth.redirect_to(return_url))
