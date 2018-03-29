@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
+from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
+from django.views.decorators.csrf import csrf_exempt
 from uw_saml import DjangoSAML
 
 
@@ -21,6 +23,7 @@ class LogoutView(View):
             auth.logout(name_id=name_id, session_index=session_index))
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SSOView(TemplateView):
     http_method_names = ['post']
     template_name = 'sso_error.html'

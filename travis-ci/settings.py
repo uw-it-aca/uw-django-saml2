@@ -70,7 +70,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'travis-ci.wsgi.application'
 
-LOGIN_URL = 'uw_saml.views.LoginView'
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = reverse_lazy('saml_login')
 
 UW_SAML = {
     'strict': False,
@@ -78,7 +79,7 @@ UW_SAML = {
     'sp': {
         'entityId': 'https://example.uw.edu/saml2',
         'assertionConsumerService': {
-            'url': 'https://example.uw.edu/Shibboleth.sso/SAML2/POST',
+            'url': 'https://example.uw.edu/saml/sso',
             'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
         },
         'singleLogoutService': {
