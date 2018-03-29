@@ -18,8 +18,21 @@ class DjangoSAML(OneLogin_Saml2_Auth):
             'query_string': request.META['QUERY_STRING']
         }
 
-        if request.GET.get('next'):
-            request_data['get_data']['RelayState'] = request.GET.get('next')
-
         super(DjangoSAML, self).__init__(
             request_data, old_settings=getattr(settings, 'UW_SAML'))
+
+    def get_attributes(self):
+        """
+        Return a dict of SAML attributes, mapping the default names to
+        friendlier names for our apps.
+        """
+        attribute_map = {
+            'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
+            'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': 'affiliations',
+            'urn:oid:1.3.6.1.4.1.5923.1.1.1.6': 'eppn',
+            'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations'
+        }
+
+        return {
+            attribute_map.get(key, key): value for key, value in super(
+                DjangoSAML, self).get_attributes().items()}

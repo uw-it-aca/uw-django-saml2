@@ -1,13 +1,16 @@
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect
+from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
+from django.views.decorators.csrf import csrf_exempt
 from uw_saml import DjangoSAML
 
 
 class LoginView(View):
     def get(self, request, *args, **kwargs):
+        return_url = request.GET.get('next', '/')
         auth = DjangoSAML(request)
-        return HttpResponseRedirect(auth.login())
+        return HttpResponseRedirect(auth.login(return_to=return_url))
 
 
 class LogoutView(View):
@@ -21,6 +24,7 @@ class LogoutView(View):
             auth.logout(name_id=name_id, session_index=session_index))
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SSOView(TemplateView):
     http_method_names = ['post']
     template_name = 'sso_error.html'
@@ -41,8 +45,11 @@ class SSOView(TemplateView):
         request.session['samlNameId'] = auth.get_nameid()
         request.session['samlSessionIndex'] = auth.get_session_index()
 
-        user = authenticate(request, remote_user=auth.get_nameid())
+        remote_user = request.session['samlUserdata']['uwnetid'][0]
+        return_url = request.POST.get('RelayState', '/')
+
+        user = authenticate(request, remote_user=remote_user)
         if user is not None:
             login(request, user)
 
-        return HttpResponseRedirect(auth.redirect_to())
+        return HttpResponseRedirect(auth.redirect_to(return_url))

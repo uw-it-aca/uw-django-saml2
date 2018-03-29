@@ -70,7 +70,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'travis-ci.wsgi.application'
 
-LOGIN_URL = 'uw_saml.views.LoginView'
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = reverse_lazy('saml_login')
 
 UW_SAML = {
     'strict': False,
@@ -78,16 +79,17 @@ UW_SAML = {
     'sp': {
         'entityId': 'https://example.uw.edu/saml2',
         'assertionConsumerService': {
-            'url': 'https://example.uw.edu/Shibboleth.sso/SAML2/POST',
+            'url': 'https://example.uw.edu/saml/sso',
             'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
         },
         'singleLogoutService': {
-            'url': 'https://example.uw.edu/logout',
+            'url': 'https://example.uw.edu/saml/logout',
             'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
         },
         'NameIDFormat': 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
         'x509cert': '',
-        'privateKey': '',
+        # for encrypted saml assertions uncomment and add the private key
+        # 'privateKey': '',
     },
     'idp': {
         'entityId': 'urn:mace:incommon:washington.edu',
@@ -102,7 +104,7 @@ UW_SAML = {
         'x509cert': '',
     },
     'security': {
-        # for 2FA you would uncomment this line.
+        # for 2FA uncomment this line
         # 'requestedAuthnContext':  ['urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken']
     }
 }
