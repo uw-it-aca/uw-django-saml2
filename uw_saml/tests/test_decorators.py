@@ -55,4 +55,4 @@ class DecoratorTest(TestCase):
         view_instance = GroupRequiredView.as_view()
         response = view_instance(self.request)
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, 'OK')
+        self.assertEquals(response.content, b'OK')
