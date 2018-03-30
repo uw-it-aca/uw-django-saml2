@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from uw_saml.utils import is_member_of_group
 
 
 def group_required(group_id):
@@ -10,12 +11,8 @@ def group_required(group_id):
     """
     def decorator(view_func):
         def wrapper(request, *args, **kwargs):
-            saml_data = request.session.get('samlUserdata')
-
-            if saml_data is not None:
-                group_urn = 'urn:mace:washington.edu:groups:%s' % group_id
-                if group_urn in saml_data.get('isMemberOf', []):
-                    return view_func(request, *args, **kwargs)
+            if is_member_of_group(request, group_id):
+                return view_func(request, *args, **kwargs)
 
             return render(request, 'access_denied.html', status=401)
 
