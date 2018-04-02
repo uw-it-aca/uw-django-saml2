@@ -3,8 +3,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory
 from uw_saml.views import LoginView, LogoutView, SSOView
-from uw_saml import OneLogin_Saml2_Auth
-from uw_saml.tests import MOCK_ATTRS
+from uw_saml.auth import OneLogin_Saml2_Auth
+from uw_saml.tests import MOCK_SAML_ATTRIBUTES
 import mock
 
 
@@ -50,7 +50,7 @@ class SSOViewTest(TestCase):
     @mock.patch.object(OneLogin_Saml2_Auth, 'get_attributes')
     @mock.patch.object(OneLogin_Saml2_Auth, 'process_response')
     def test_sso(self, mock_process_response, mock_get_attributes):
-        mock_get_attributes.return_value = MOCK_ATTRS
+        mock_get_attributes.return_value = MOCK_SAML_ATTRIBUTES
 
         view_instance = SSOView.as_view()
         response = view_instance(self.request)

@@ -3,7 +3,8 @@ from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.decorators.csrf import csrf_exempt
-from uw_saml import DjangoSAML
+from uw_saml.auth import DjangoSAML
+from uw_saml.utils import get_user
 
 
 class LoginView(View):
@@ -29,7 +30,7 @@ class LogoutView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class SSOView(TemplateView):
     http_method_names = ['post']
-    template_name = 'sso_error.html'
+    template_name = 'uw_saml/sso_error.html'
 
     def post(self, request, *args, **kwargs):
         auth = DjangoSAML(request)
@@ -48,7 +49,7 @@ class SSOView(TemplateView):
         request.session['samlSessionIndex'] = auth.get_session_index()
 
         # Django login
-        user = authenticate(request, remote_user=auth.get_remote_user())
+        user = authenticate(request, remote_user=get_user(request))
         if user is not None:
             login(request, user)
 

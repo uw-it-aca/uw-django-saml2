@@ -6,8 +6,6 @@ from django.test import TestCase, RequestFactory
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from uw_saml.decorators import group_required
-from uw_saml.tests import MOCK_ATTRS
-import mock
 
 
 @method_decorator(group_required('u_test_group'), name='dispatch')
@@ -41,7 +39,7 @@ class DecoratorTest(TestCase):
 
     def test_group_required_withgroups(self):
         self.request.session['samlUserdata'] = {
-            'isMemberOf': ['urn:mace:washington.edu:groups:u_wrong_group']}
+            'isMemberOf': ['u_wrong_group']}
 
         view_instance = GroupRequiredView.as_view()
         response = view_instance(self.request)
@@ -49,8 +47,7 @@ class DecoratorTest(TestCase):
 
     def test_group_required_ok(self):
         self.request.session['samlUserdata'] = {
-            'isMemberOf': ['urn:mace:washington.edu:groups:u_wrong_group',
-                           'urn:mace:washington.edu:groups:u_test_group']}
+            'isMemberOf': ['u_wrong_group', 'u_test_group']}
 
         view_instance = GroupRequiredView.as_view()
         response = view_instance(self.request)
