@@ -19,15 +19,15 @@ class DjangoSAML(object):
             self._implementation = Mock_Saml2_Auth()
 
         elif hasattr(settings, 'UW_SAML'):
-	    request_data = {
-		'https': 'on' if request.is_secure() else 'off',
-		'http_host': request.META['HTTP_HOST'],
-		'script_name': request.META['PATH_INFO'],
-		'server_port': request.META['SERVER_PORT'],
-		'get_data': request.GET.copy(),
-		'post_data': request.POST.copy(),
-		'query_string': request.META['QUERY_STRING']
-	    }
+            request_data = {
+                'https': 'on' if request.is_secure() else 'off',
+                'http_host': request.META['HTTP_HOST'],
+                'script_name': request.META['PATH_INFO'],
+                'server_port': request.META['SERVER_PORT'],
+                'get_data': request.GET.copy(),
+                'post_data': request.POST.copy(),
+                'query_string': request.META['QUERY_STRING']
+            }
 
             self._implementation = OneLogin_Saml2_Auth(
                 request_data, old_settings=getattr(settings, 'UW_SAML'))
