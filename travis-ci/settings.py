@@ -104,6 +104,8 @@ UW_SAML = {
         'x509cert': '',
     },
     'security': {
+        # for encrypted saml assertions
+        # 'wantAssertionsEncrypted': True,
         # for 2FA uncomment this line
         # 'requestedAuthnContext':  ['urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken']
     }

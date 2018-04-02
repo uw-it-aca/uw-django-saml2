@@ -14,7 +14,7 @@ def group_required(group_id):
             if is_member_of_group(request, group_id):
                 return view_func(request, *args, **kwargs)
 
-            return render(request, 'access_denied.html', status=401)
+            return render(request, 'uw_saml/access_denied.html', status=401)
 
         return login_required(function=wrapper)
 

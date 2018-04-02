@@ -3,14 +3,16 @@
 
 # uw-django-saml2
 
-This project allows a Django app to be a SAML SP without running shibd and
-apache mod_shib. The key dependency is OneLogin's [python3-saml package](https://github.com/onelogin/python3-saml). This app is targeted at python3.6, but python2.7 is also supported.
+This app allows a Django project to be a SAML SP without running shibd and
+apache mod_shib. The key dependency is OneLogin's [python3-saml package](https://github.com/onelogin/python3-saml).
+For easier development and testing, the app also supports configuring a mocked
+SAML-authenticated session. This app is targeted at python3.6, but python2.7 is also supported.
 
 ## Four steps to SAML
 
 ### Configure the LOGIN_URL
 
-Configure the `saml_login` URL in `uw_saml.urls.py` to be the LOGIN_URL in your 
+Configure the `saml_login` URL in `uw_saml.urls.py` to be the LOGIN_URL in your
 `project/settings.py`:
 
 ```
@@ -43,3 +45,21 @@ url(r'^saml/', include('uw_saml.urls')),
 ### Register your app as an SP
 
 Register your app with the UW Service Provider Registry
+
+## Mocking a SAML login
+
+To mock a SAML-authenticated session in your app, add the setting
+`MOCK_SAML_ATTRIBUTES` to `project/settings.py`.  When this setting is
+present, mocking takes precedence over the live SAML workflow.
+The value of the setting is a SAML attribute set, representing the
+desired attributes for the mocked user:
+
+```
+MOCK_SAML_ATTRIBUTES = {
+    'uwnetid': ['javerage'],
+    'affiliations': ['student', 'member'],
+    'eppn': ['javerage@washington.edu'],
+    'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
+    'isMemberOf': ['u_test_group', 'u_test_another_group'],
+}
+```
