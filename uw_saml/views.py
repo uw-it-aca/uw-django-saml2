@@ -1,10 +1,8 @@
-from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from uw_saml.auth import DjangoSAML
-from uw_saml.utils import get_user
 
 
 class LoginView(View):
@@ -17,14 +15,7 @@ class LoginView(View):
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
         auth = DjangoSAML(request)
-
-        name_id = request.session.get('samlNameId')
-        session_index = request.session.get('samlSessionIndex')
-
-        logout(request)  # Django logout
-
-        return HttpResponseRedirect(
-            auth.logout(name_id=name_id, session_index=session_index))
+        return HttpResponseRedirect(auth.logout())
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -44,14 +35,7 @@ class SSOView(TemplateView):
         if len(errors):
             return self.render_to_response({'errors': errors}, status=500)
 
-        request.session['samlUserdata'] = auth.get_attributes()
-        request.session['samlNameId'] = auth.get_nameid()
-        request.session['samlSessionIndex'] = auth.get_session_index()
-
-        # Django login
-        user = authenticate(request, remote_user=get_user(request))
-        if user is not None:
-            login(request, user)
+        auth.persist_login()
 
         return_url = request.POST.get('RelayState', '/')
         return HttpResponseRedirect(auth.redirect_to(return_url))
