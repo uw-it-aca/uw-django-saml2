@@ -32,9 +32,10 @@ class UtilsTest(TestCase):
     def test_is_member_of_group(self):
         self.assertEquals(is_member_of_group(self.request, 'u_test_group'),
                           True)
-
         self.assertEquals(is_member_of_group(self.request, 'u_test_nope'),
                           False)
+        self.assertEquals(is_member_of_group(self.request, ''), False)
+        self.assertEquals(is_member_of_group(self.request, None), False)
 
     def test_is_member_of_group_without_ismemberof(self):
         self.request.session['samlUserdata'] = {}
