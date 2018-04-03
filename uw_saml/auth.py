@@ -10,6 +10,23 @@ class DjangoSAML(object):
     This class acts as a wrapper around an instance of either a
     OneLogin_Saml2_Auth or Mock_Saml2_Auth class.
     """
+    attribute_map = {
+        'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
+        'urn:oid:1.3.6.1.4.1.5923.1.1.1.6': 'eppn',
+        'urn:oid:1.2.840.113994.200.24': 'uwregid',
+        'urn:oid:0.9.2342.19200300.100.1.3': 'email',
+        'urn:oid:2.16.840.1.113730.3.1.241': 'displayName',
+        'urn:oid:2.5.4.42': 'givenName',
+        'urn:oid:2.5.4.4': 'surname',
+        'urn:oid:1.2.840.113994.200.21': 'studentid',
+        'urn:oid:2.16.840.1.113730.3.1.3': 'employeeNumber',
+        'urn:oid:2.5.4.11': 'homeDepartment',
+        'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': 'affiliations',
+        'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations',
+        'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': 'isMemberOf',
+    }
+    group_ns = 'urn:mace:washington.edu:groups:'
+
     def __init__(self, request):
         self._is_mock = False
         self._request = request
@@ -72,25 +89,11 @@ class DjangoSAML(object):
         Return a dict of SAML attributes, mapping the default names to
         friendlier names.
         """
-        attribute_map = {
-            'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
-            'urn:oid:1.3.6.1.4.1.5923.1.1.1.6': 'eppn',
-            'urn:oid:1.2.840.113994.200.24': 'uwregid',
-            'urn:oid:0.9.2342.19200300.100.1.3': 'email',
-            'urn:oid:2.5.4.42': 'givenName',
-            'urn:oid:2.5.4.4': 'surname',
-            'urn:oid:1.2.840.113994.200.21': 'studentid',
-            'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': 'affiliations',
-            'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations',
-            'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': 'isMemberOf',
-        }
-
-        attributes = {attribute_map.get(key, key): value for key, value in (
+        attributes = {self.attribute_map.get(key, key): val for key, val in (
             self._implementation.get_attributes().items())}
 
         if 'isMemberOf' in attributes:
-            group_urn = 'urn:mace:washington.edu:groups:'
-            attributes['isMemberOf'] = [el.replace(group_urn, '') for el in (
+            attributes['isMemberOf'] = [e.replace(self.group_ns, '') for e in (
                 attributes['isMemberOf'])]
 
         return attributes
