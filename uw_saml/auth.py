@@ -33,21 +33,21 @@ class DjangoSAML(object):
                 request_data, old_settings=getattr(settings, 'UW_SAML'))
 
         else:
-            raise ImproperlyConfigured('Missing "UW_SAML" key in settings.py')
+            raise ImproperlyConfigured('Missing "UW_SAML" dict in settings.py')
 
     def __getattr__(self, name, *args, **kwargs):
         """
-        Pass method calls through to the implementation instance.
+        Pass unshimmed method calls through to the implementation instance.
         """
         def handler(*args, **kwargs):
             return getattr(self._implementation, name)(*args, **kwargs)
         return handler
 
-    def login(self, return_to=None):
+    def login(self, **kwargs):
         if self._is_mock:
             self.persist_login()
 
-        return self._implementation.login(return_to=return_to)
+        return self._implementation.login(**kwargs)
 
     def persist_login(self):
         self._request.session['samlUserdata'] = self.get_attributes()
@@ -59,19 +59,18 @@ class DjangoSAML(object):
         if user is not None:
             login(self._request, user)
 
-    def logout(self, return_to=None):
-        name_id = self._request.session.get('samlNameId')
-        session_index = self._request.session.get('samlSessionIndex')
+    def logout(self, **kwargs):
+        kwargs['name_id'] = self._request.session.get('samlNameId')
+        kwargs['session_index'] = self._request.session.get('samlSessionIndex')
 
         logout(self._request)  # Django logout
 
-        return self._implementation.logout(
-            return_to=return_to, name_id=name_id, session_index=session_index)
+        return self._implementation.logout(**kwargs)
 
     def get_attributes(self):
         """
         Return a dict of SAML attributes, mapping the default names to
-        friendlier names for our apps.
+        friendlier names.
         """
         attribute_map = {
             'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
@@ -98,11 +97,11 @@ class DjangoSAML(object):
 
 
 class Mock_Saml2_Auth(object):
-    def login(self, return_to='/', **kwargs):
-        return return_to
+    def login(self, **kwargs):
+        return kwargs.get('return_to', '/')
 
-    def logout(self, return_to='/', **kwargs):
-        return return_to
+    def logout(self, **kwargs):
+        return kwargs.get('return_to', '/')
 
     def get_attributes(self):
         return getattr(settings, 'MOCK_SAML_ATTRIBUTES')
