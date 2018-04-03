@@ -18,6 +18,8 @@ class MockAuthTest(TestCase):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
             auth = DjangoSAML(self.request)
             self.assertIsInstance(auth._implementation, Mock_Saml2_Auth)
+            self.assertEquals(auth.get_nameid(), 'mock-nameid')
+            self.assertEquals(auth.get_session_index(), 'mock-session-index')
 
     def test_get_attributes(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
@@ -39,12 +41,12 @@ class MockAuthTest(TestCase):
     def test_login(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
             auth = DjangoSAML(self.request)
-            self.assertEquals(auth.login('/test'), '/test')
+            self.assertEquals(auth.login(return_to='/test'), '/test')
 
     def test_logout(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
             auth = DjangoSAML(self.request)
-            self.assertEquals(auth.logout('/test'), '/test')
+            self.assertEquals(auth.logout(return_to='/test'), '/test')
 
     def test_nonexistent_method(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
