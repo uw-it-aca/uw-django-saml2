@@ -3,7 +3,7 @@ from django.conf import settings
 
 def get_user(request):
     """
-    Return the useri login stored in session.samlUserdata, identified in
+    Return the user login stored in session.samlUserdata, identified in
     settings by either 'uwnetid' (default) or 'eppn'.
     """
     saml_data = request.session.get('samlUserdata')
