@@ -63,3 +63,9 @@ MOCK_SAML_ATTRIBUTES = {
     'isMemberOf': ['u_test_group', 'u_test_another_group'],
 }
 ```
+
+### Other required settings
+
+```
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
+```

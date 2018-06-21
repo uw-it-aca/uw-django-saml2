@@ -11,6 +11,7 @@ class MockAuthTest(TestCase):
     def setUp(self):
         self.request = RequestFactory().post(
             reverse('saml_sso'), HTTP_HOST='example.uw.edu')
+        self.request.user = None
         SessionMiddleware().process_request(self.request)
         self.request.session.save()
 
@@ -41,12 +42,18 @@ class MockAuthTest(TestCase):
     def test_login(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
             auth = DjangoSAML(self.request)
-            self.assertEquals(auth.login(return_to='/test'), '/test')
+            url = auth.login(return_to='/test')
+            self.assertEquals(url, '/test')
+            self.assertEquals(self.request.user.is_authenticated, True)
+            self.assertEquals(self.request.user.username, 'javerage')
 
     def test_logout(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
             auth = DjangoSAML(self.request)
-            self.assertEquals(auth.logout(return_to='/test'), '/test')
+            url = auth.logout(return_to='/test')
+            self.assertEquals(url, '/test')
+            self.assertEquals(self.request.user.is_authenticated, False)
+            self.assertEquals(self.request.user.username, '')
 
     def test_nonexistent_method(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):

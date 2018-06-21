@@ -62,27 +62,29 @@ class DjangoSAML(object):
 
     def login(self, **kwargs):
         if self._is_mock:
-            self.persist_login()
+            self.process_response()
 
         return self._implementation.login(**kwargs)
 
-    def persist_login(self):
+    def logout(self, **kwargs):
+        kwargs['name_id'] = self._request.session.get('samlNameId')
+        kwargs['session_index'] = self._request.session.get('samlSessionIndex')
+
+        # Django logout
+        logout(self._request)
+
+        return self._implementation.logout(**kwargs)
+
+    def process_response(self):
+        self._implementation.process_response()
+
         self._request.session['samlUserdata'] = self.get_attributes()
         self._request.session['samlNameId'] = self.get_nameid()
         self._request.session['samlSessionIndex'] = self.get_session_index()
 
         # Django login
         user = authenticate(self._request, remote_user=get_user(self._request))
-        if user is not None:
-            login(self._request, user)
-
-    def logout(self, **kwargs):
-        kwargs['name_id'] = self._request.session.get('samlNameId')
-        kwargs['session_index'] = self._request.session.get('samlSessionIndex')
-
-        logout(self._request)  # Django logout
-
-        return self._implementation.logout(**kwargs)
+        login(self._request, user)
 
     def get_attributes(self):
         """
@@ -105,6 +107,9 @@ class Mock_Saml2_Auth(object):
 
     def logout(self, **kwargs):
         return kwargs.get('return_to', '/')
+
+    def process_response(self):
+        return
 
     def get_attributes(self):
         return getattr(settings, 'MOCK_SAML_ATTRIBUTES')
