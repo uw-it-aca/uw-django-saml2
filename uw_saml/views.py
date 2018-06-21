@@ -35,7 +35,5 @@ class SSOView(TemplateView):
         if len(errors):
             return self.render_to_response({'errors': errors}, status=500)
 
-        auth.persist_login()
-
         return_url = request.POST.get('RelayState', '/')
         return HttpResponseRedirect(auth.redirect_to(return_url))
