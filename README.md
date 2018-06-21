@@ -64,7 +64,7 @@ MOCK_SAML_ATTRIBUTES = {
 }
 ```
 
-### Other required settings
+## Other required settings
 
 ```
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
