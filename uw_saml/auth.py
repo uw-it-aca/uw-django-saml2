@@ -8,7 +8,7 @@ from uw_saml.utils import get_user
 class DjangoSAML(object):
     """
     This class acts as a wrapper around an instance of either a
-    OneLogin_Saml2_Auth or Mock_Saml2_Auth class.
+    OneLogin_Saml2_Auth or a Mock_Saml2_Auth class.
     """
     attribute_map = {
         'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
@@ -61,12 +61,18 @@ class DjangoSAML(object):
         return handler
 
     def login(self, **kwargs):
+        """
+        Overrides the implementation method to support a mocked login.
+        """
         if self._is_mock:
             self.process_response()
 
         return self._implementation.login(**kwargs)
 
     def logout(self, **kwargs):
+        """
+        Overrides the implementation method to add the Django logout.
+        """
         kwargs['name_id'] = self._request.session.get('samlNameId')
         kwargs['session_index'] = self._request.session.get('samlSessionIndex')
 
@@ -76,6 +82,10 @@ class DjangoSAML(object):
         return self._implementation.logout(**kwargs)
 
     def process_response(self):
+        """
+        Overrides the implementation method to store the SAML attributes and
+        add the Django login.
+        """
         self._implementation.process_response()
 
         self._request.session['samlUserdata'] = self.get_attributes()
@@ -88,8 +98,8 @@ class DjangoSAML(object):
 
     def get_attributes(self):
         """
-        Return a dict of SAML attributes, mapping the default names to
-        friendlier names.
+        Overrides the implementation method to return a dictionary of SAML
+        attributes, mapping the default names to friendlier names.
         """
         attributes = {self.attribute_map.get(key, key): val for key, val in (
             self._implementation.get_attributes().items())}
