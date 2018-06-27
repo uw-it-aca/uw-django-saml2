@@ -1,3 +1,4 @@
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
@@ -7,8 +8,8 @@ from uw_saml.auth import DjangoSAML
 
 class LoginView(View):
     def get(self, request, *args, **kwargs):
-        return_url = request.GET.get('next', '/')
         auth = DjangoSAML(request)
+        return_url = request.GET.get(REDIRECT_FIELD_NAME)
         return HttpResponseRedirect(auth.login(return_to=return_url))
 
 
@@ -35,5 +36,5 @@ class SSOView(TemplateView):
         if len(errors):
             return self.render_to_response({'errors': errors}, status=500)
 
-        return_url = request.POST.get('RelayState', '/')
+        return_url = request.POST.get('RelayState')
         return HttpResponseRedirect(auth.redirect_to(return_url))

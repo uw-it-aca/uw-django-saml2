@@ -47,6 +47,10 @@ class MockAuthTest(TestCase):
             self.assertEquals(self.request.user.is_authenticated, True)
             self.assertEquals(self.request.user.username, 'javerage')
 
+            # Missing return_to arg
+            auth = DjangoSAML(self.request)
+            self.assertEquals(auth.login(), '')
+
     def test_logout(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):
             auth = DjangoSAML(self.request)
@@ -54,6 +58,10 @@ class MockAuthTest(TestCase):
             self.assertEquals(url, '/test')
             self.assertEquals(self.request.user.is_authenticated, False)
             self.assertEquals(self.request.user.username, '')
+
+            # Missing return_to arg
+            auth = DjangoSAML(self.request)
+            self.assertEquals(auth.logout(), '')
 
     def test_nonexistent_method(self):
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES):

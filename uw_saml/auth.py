@@ -113,10 +113,10 @@ class DjangoSAML(object):
 
 class Mock_Saml2_Auth(object):
     def login(self, **kwargs):
-        return kwargs.get('return_to', '/')
+        return kwargs.get('return_to', '')
 
     def logout(self, **kwargs):
-        return kwargs.get('return_to', '/')
+        return kwargs.get('return_to', '')
 
     def process_response(self):
         return
