@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth
 from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES
 import mock
@@ -76,6 +77,11 @@ class LiveAuthTest(TestCase):
             HTTP_HOST='idp.uw.edu')
         SessionMiddleware().process_request(self.request)
         self.request.session.save()
+
+    @override_settings()
+    def test_missing_implementation(self):
+        del settings.UW_SAML
+        self.assertRaises(ImproperlyConfigured, DjangoSAML, self.request)
 
     def test_implementation(self):
         auth = DjangoSAML(self.request)
