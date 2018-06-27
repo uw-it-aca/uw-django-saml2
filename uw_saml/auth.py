@@ -28,12 +28,11 @@ class DjangoSAML(object):
     group_ns = 'urn:mace:washington.edu:groups:'
 
     def __init__(self, request):
-        self._is_mock = False
         self._request = request
 
         if hasattr(settings, 'MOCK_SAML_ATTRIBUTES'):
-            self._is_mock = True
             self._implementation = Mock_Saml2_Auth()
+            self.process_response()
 
         elif hasattr(settings, 'UW_SAML'):
             request_data = {
@@ -59,15 +58,6 @@ class DjangoSAML(object):
         def handler(*args, **kwargs):
             return getattr(self._implementation, name)(*args, **kwargs)
         return handler
-
-    def login(self, **kwargs):
-        """
-        Overrides the implementation method to support a mocked login.
-        """
-        if self._is_mock:
-            self.process_response()
-
-        return self._implementation.login(**kwargs)
 
     def logout(self, **kwargs):
         """
