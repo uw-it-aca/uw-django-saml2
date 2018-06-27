@@ -43,7 +43,9 @@ class LogoutViewTest(TestCase):
 class SSOViewTest(TestCase):
     def setUp(self):
         self.request = RequestFactory().post(
-                reverse('saml_sso'), HTTP_HOST='example.uw.edu')
+            reverse('saml_sso'),
+            data={'RelayState': '/private'},
+            HTTP_HOST='example.uw.edu')
         SessionMiddleware().process_request(self.request)
         self.request.session.save()
 
@@ -55,7 +57,7 @@ class SSOViewTest(TestCase):
         view_instance = SSOView.as_view()
         response = view_instance(self.request)
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(response.url, 'http://example.uw.edu/')
+        self.assertEquals(response.url, 'http://example.uw.edu/private')
 
 
 class SSOViewErrorTest(TestCase):
