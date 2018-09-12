@@ -29,7 +29,8 @@ class SSOView(TemplateView):
         try:
             auth.process_response()
         except Exception as ex:
-            context = {'error_msg': ex, 'errors': auth.get_errors()}
+            context = {'error_msg': str(ex),
+                       'errors': auth.get_errors()}
             return self.render_to_response(context, status=400)
 
         errors = auth.get_errors()

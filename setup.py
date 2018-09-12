@@ -23,9 +23,9 @@ setup(
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
-        'Django>=1.11,<2.0',
+        'Django>2.1,<3.0',
         'python3-saml>=1.4.1',
-        'mock',
+        'mock'
     ],
     license='Apache License, Version 2.0',
     description=('UW-Django-SAML2'),
@@ -36,7 +36,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
     ],
 )
