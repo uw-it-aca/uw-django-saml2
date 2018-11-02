@@ -21,6 +21,9 @@ class LoginViewTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleSignOnService']['url'],
                       response.url)
+        self.assertIn(
+            'max-age=0, no-cache, no-store, must-revalidate',
+            response['Cache-Control'])
 
 
 class LogoutViewTest(TestCase):

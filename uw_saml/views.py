@@ -2,10 +2,12 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from uw_saml.auth import DjangoSAML
 
 
+@method_decorator(never_cache, name='dispatch')
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         auth = DjangoSAML(request)
