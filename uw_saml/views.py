@@ -15,6 +15,7 @@ class LoginView(View):
         return HttpResponseRedirect(auth.login(return_to=return_url))
 
 
+@method_decorator(never_cache, name='dispatch')
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
         auth = DjangoSAML(request)
