@@ -7,6 +7,8 @@ from uw_saml.auth import OneLogin_Saml2_Auth
 from uw_saml.tests import MOCK_SAML_ATTRIBUTES
 import mock
 
+CACHE_CONTROL = 'max-age=0, no-cache, no-store, must-revalidate'
+
 
 class LoginViewTest(TestCase):
     def setUp(self):
@@ -21,9 +23,7 @@ class LoginViewTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleSignOnService']['url'],
                       response.url)
-        self.assertIn(
-            'max-age=0, no-cache, no-store, must-revalidate',
-            response['Cache-Control'])
+        self.assertEquals(response['Cache-Control'], CACHE_CONTROL)
 
 
 class LogoutViewTest(TestCase):
@@ -41,6 +41,7 @@ class LogoutViewTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleLogoutService']['url'],
                       response.url)
+        self.assertEquals(response['Cache-Control'], CACHE_CONTROL)
 
 
 class SSOViewTest(TestCase):
