@@ -1,7 +1,10 @@
+# uw-django-saml2
+
 [![Build Status](https://api.travis-ci.org/uw-it-aca/uw-django-saml2.svg?branch=master)](https://travis-ci.org/uw-it-aca/uw-django-saml2)
 [![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-django-saml2/badge.png?branch=master)](https://coveralls.io/r/uw-it-aca/uw-django-saml2?branch=master)
+[![PyPi Version](https://img.shields.io/pypi/v/uw-django-saml2.svg)](https://pypi.python.org/pypi/uw-django-saml2)
+![Python versions](https://img.shields.io/pypi/pyversions/uw-django-saml2.svg)
 
-# uw-django-saml2
 
 This app allows a Django project to be a SAML SP without running shibd and
 apache mod_shib. The key dependency is OneLogin's [python3-saml package](https://github.com/onelogin/python3-saml).
