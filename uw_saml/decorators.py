@@ -19,3 +19,22 @@ def group_required(group_id):
         return login_required(function=wrapper)
 
     return decorator
+
+
+def any_group_required(*groups):
+    """
+    A decorator for views that checks whether the user is a member of any of
+    the groups identified by the passed arguments. Calls login_required if
+    the user is not authenticated.
+    """
+    def decorator(view_func):
+        def wrapper(request, *args, **kwargs):
+            for group_id in groups:
+                if is_member_of_group(request, group_id):
+                    return view_func(request, *args, **kwargs)
+
+            return render(request, 'uw_saml/access_denied.html', status=401)
+
+        return login_required(function=wrapper)
+
+    return decorator
