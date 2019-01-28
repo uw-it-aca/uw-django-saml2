@@ -1,8 +1,11 @@
+import logging
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ImproperlyConfigured
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
+
+logger = logging.getLogger(__name__)
 
 
 class DjangoSAML(object):
@@ -45,6 +48,8 @@ class DjangoSAML(object):
                 'query_string': request.META['QUERY_STRING']
             }
 
+            logger.info(request_data)
+
             if hasattr(request.META, "X-Forwarded-Host"):
                 request_data["http_host"] = request.META["X-Forwarded-Host"]
 
@@ -53,6 +58,8 @@ class DjangoSAML(object):
 
             if getattr(request.META, "X-Fowarded-Proto", "http") == "https":
                 request_data['https'] = 'on'
+
+            logger.info(request_data)
 
             self._implementation = OneLogin_Saml2_Auth(
                 request_data, old_settings=getattr(settings, 'UW_SAML'))
