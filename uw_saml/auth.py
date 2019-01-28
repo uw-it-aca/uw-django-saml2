@@ -1,12 +1,8 @@
-import logging
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ImproperlyConfigured
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
-import sys
-
-logger = logging.getLogger(__name__)
 
 
 class DjangoSAML(object):
