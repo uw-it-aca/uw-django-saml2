@@ -51,6 +51,7 @@ class DjangoSAML(object):
 
             logger.info("Request data Preprocessing %s", request_data)
             sys.stdout.write(str(request_data))
+            sys.stdout.write(str(request.META))
 
             if hasattr(request.META, "X-Forwarded-Host"):
                 request_data["http_host"] = request.META["X-Forwarded-Host"]
