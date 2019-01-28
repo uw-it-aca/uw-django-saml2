@@ -1,7 +1,7 @@
 # uw-django-saml2
 
 [![Build Status](https://api.travis-ci.org/uw-it-aca/uw-django-saml2.svg?branch=master)](https://travis-ci.org/uw-it-aca/uw-django-saml2)
-[![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-django-saml2/badge.png?branch=master)](https://coveralls.io/r/uw-it-aca/uw-django-saml2?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/uw-django-saml2/badge.svg?branch=master)](https://coveralls.io/github/uw-it-aca/uw-django-saml2?branch=master)
 [![PyPi Version](https://img.shields.io/pypi/v/uw-django-saml2.svg)](https://pypi.python.org/pypi/uw-django-saml2)
 ![Python versions](https://img.shields.io/pypi/pyversions/uw-django-saml2.svg)
 
