@@ -9,7 +9,7 @@
 This app allows a Django project to be a SAML SP without running shibd and
 apache mod_shib. The key dependency is OneLogin's [python3-saml package](https://github.com/onelogin/python3-saml).
 For easier development and testing, the app also supports configuring a mocked
-SAML-authenticated session. This app is targeted at python3.6, but python2.7 is also supported.
+SAML-authenticated session.
 
 ## Four steps to SAML
 
