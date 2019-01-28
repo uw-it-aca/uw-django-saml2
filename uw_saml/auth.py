@@ -49,13 +49,18 @@ class DjangoSAML(object):
                 'query_string': request.META['QUERY_STRING']
             }
 
-            if "HTTP_X_FORWARDED_HOST" in request.META:
-                request_data["http_host"] = request.META["HTTP_X_FORWARDED_HOST"]
+            forwarded_host = "HTTP_X_FORWARDED_HOST"
 
-            if "HTTP_X_FORWARDED_PORT" in request.META:
-                request_data["server_port"] = request.META["HTTP_X_FORWARDED_PORT"]
+            if forwarded_host in request.META:
+                request_data["http_host"] = request.META[forwarded_host]
 
-            if ("HTTP_X_FORWARDED_PROTO" in request.META and 
+            forwarded_port = "HTTP_X_FORWARDED_PORT"
+
+            if forwarded_port in request.META:
+                request_data["server_port"] = request.META[forwarded_port]
+
+            forwarded_proto = "HTTP_X_FORWARDED_PROTO"
+            if (forwarded_proto in request.META and
                     request.META['HTTP_X_FORWARDED_PROTO'] == "https"):
                 request_data['https'] = 'on'
 
