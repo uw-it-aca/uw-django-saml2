@@ -49,8 +49,6 @@ class DjangoSAML(object):
                 'query_string': request.META['QUERY_STRING']
             }
 
-            logger.info("Request data Preprocessing %s", request_data)
-
             if "HTTP_X_FORWARDED_HOST" in request.META:
                 request_data["http_host"] = request.META["HTTP_X_FORWARDED_HOST"]
 
@@ -60,9 +58,6 @@ class DjangoSAML(object):
             if ("HTTP_X_FORWARDED_PROTO" in request.META and 
                     request.META['HTTP_X_FORWARDED_PROTO'] == "https"):
                 request_data['https'] = 'on'
-
-            logger.info("Request data Postprocessing %s", request_data)
-            sys.stdout.write(str(request_data["server_port"]))
 
             self._implementation = OneLogin_Saml2_Auth(
                 request_data, old_settings=getattr(settings, 'UW_SAML'))
