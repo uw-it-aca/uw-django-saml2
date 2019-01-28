@@ -53,13 +53,13 @@ class DjangoSAML(object):
             sys.stdout.write(str(request_data))
             sys.stdout.write(str(request.META))
 
-            if hasattr(request.META, "X-Forwarded-Host"):
+            if hasattr(request.META, "HTTP_X_FORWARDED_HOST"):
                 request_data["http_host"] = request.META["X-Forwarded-Host"]
 
-            if hasattr(request.META, "X-Forwarded-Port"):
+            if hasattr(request.META, "HTTP_X_FORWARDED_PORT"):
                 request_data["server_port"] = request.META["X-Forwarded-Port"]
 
-            if getattr(request.META, "X-Fowarded-Proto", "http") == "https":
+            if getattr(request.META, "HTTP_X_FORWARDED_PROTO", "http") == "https":
                 request_data['https'] = 'on'
 
             logger.info("Request data Postprocessing %s", request_data)
