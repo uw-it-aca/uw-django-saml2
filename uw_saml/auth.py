@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ImproperlyConfigured
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,7 @@ class DjangoSAML(object):
             }
 
             logger.info("Request data Preprocessing %s", request_data)
+            sys.stdout.write(str(request_data))
 
             if hasattr(request.META, "X-Forwarded-Host"):
                 request_data["http_host"] = request.META["X-Forwarded-Host"]
@@ -60,6 +62,7 @@ class DjangoSAML(object):
                 request_data['https'] = 'on'
 
             logger.info("Request data Postprocessing %s", request_data)
+            sys.stdout.write(str(request_data))
 
             self._implementation = OneLogin_Saml2_Auth(
                 request_data, old_settings=getattr(settings, 'UW_SAML'))
