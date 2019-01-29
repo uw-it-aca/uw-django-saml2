@@ -10,7 +10,11 @@ class DjangoSAML(object):
     This class acts as a wrapper around an instance of either a
     OneLogin_Saml2_Auth or a Mock_Saml2_Auth class.
     """
-    attribute_map = {
+    FORWARDED_HOST = 'HTTP_X_FORWARDED_HOST'
+    FORWARDED_PORT = 'HTTP_X_FORWARDED_PORT'
+    FORWARDED_PROTO = 'HTTP_X_FORWARDED_PROTO'
+
+    ATTRIBUTE_MAP = {
         'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
         'urn:oid:1.3.6.1.4.1.5923.1.1.1.6': 'eppn',
         'urn:oid:1.2.840.113994.200.24': 'uwregid',
@@ -25,7 +29,7 @@ class DjangoSAML(object):
         'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations',
         'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': 'isMemberOf',
     }
-    group_ns = 'urn:mace:washington.edu:groups:'
+    GROUP_NS = 'urn:mace:washington.edu:groups:'
 
     def __init__(self, request):
         self._request = request
@@ -45,20 +49,15 @@ class DjangoSAML(object):
                 'query_string': request.META['QUERY_STRING']
             }
 
-            forwarded_host = "HTTP_X_FORWARDED_HOST"
+            if self.FORWARDED_HOST in request.META:
+                request_data['http_host'] = request.META[self.FORWARDED_HOST]
 
-            if forwarded_host in request.META:
-                request_data["http_host"] = request.META[forwarded_host]
+            if self.FORWARDED_PORT in request.META:
+                request_data['server_port'] = request.META[self.FORWARDED_PORT]
 
-            forwarded_port = "HTTP_X_FORWARDED_PORT"
-
-            if forwarded_port in request.META:
-                request_data["server_port"] = request.META[forwarded_port]
-
-            forwarded_proto = "HTTP_X_FORWARDED_PROTO"
-            if (forwarded_proto in request.META and
-                    request.META['HTTP_X_FORWARDED_PROTO'] == "https"):
-                request_data['https'] = 'on'
+            if self.FORWARDED_PROTO in request.META:
+                request_data['https'] = 'on' if (
+                    request.META[self.FORWARDED_PROTO] == 'https') else 'off'
 
             self._implementation = OneLogin_Saml2_Auth(
                 request_data, old_settings=getattr(settings, 'UW_SAML'))
@@ -106,11 +105,11 @@ class DjangoSAML(object):
         Overrides the implementation method to return a dictionary of SAML
         attributes, mapping the default names to friendlier names.
         """
-        attributes = {self.attribute_map.get(key, key): val for key, val in (
+        attributes = {self.ATTRIBUTE_MAP.get(key, key): val for key, val in (
             self._implementation.get_attributes().items())}
 
         if 'isMemberOf' in attributes:
-            attributes['isMemberOf'] = [e.replace(self.group_ns, '') for e in (
+            attributes['isMemberOf'] = [e.replace(self.GROUP_NS, '') for e in (
                 attributes['isMemberOf'])]
 
         return attributes
