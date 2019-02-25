@@ -73,6 +73,13 @@ class DjangoSAML(object):
             return getattr(self._implementation, name)(*args, **kwargs)
         return handler
 
+    def login(self, **kwargs):
+        """
+        Overrides the implementation method to add force_authn option.
+        """
+        kwargs['force_authn'] = getattr(settings, 'SAML_FORCE_AUTHN', False)
+        return self._implementation.login(**kwargs)
+
     def logout(self, **kwargs):
         """
         Overrides the implementation method to add the Django logout.
