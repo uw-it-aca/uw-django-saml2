@@ -13,12 +13,18 @@ SAML-authenticated session.
 
 ## Four steps to SAML
 
-### Configure the LOGIN_URL
+### Configure the LOGIN_URL and required settings
 
-Configure the `saml_login` URL in `uw_saml.urls.py` to be the LOGIN_URL in your
+Add required settings, and configure the `saml_login` URL in `uw_saml.urls.py` to be the LOGIN_URL in your
 `project/settings.py`:
 
 ```
+INSTALLED_APPS = ['uw_saml',]
+
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.RemoteUserBackend',]
+
+MIDDLEWARE = ['django.contrib.auth.middleware.PersistentRemoteUserMiddleware',]
+
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = reverse_lazy('saml_login')
 ```
@@ -65,10 +71,4 @@ MOCK_SAML_ATTRIBUTES = {
     'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
     'isMemberOf': ['u_test_group', 'u_test_another_group'],
 }
-```
-
-## Other required settings
-
-```
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
 ```
