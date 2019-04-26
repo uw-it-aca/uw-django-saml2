@@ -23,7 +23,7 @@ setup(
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
-        'Django>=2.0,<2.1',
+        'Django>=2.0,<2.2',
         'python3-saml>=1.6.0',
         'mock'
     ],
