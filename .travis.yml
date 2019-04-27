@@ -2,8 +2,12 @@ dist: xenial
 language: python
 python:
 - '3.6'
+env:
+- DJANGO_VERSION=2.0
+- DJANGO_VERSION=2.1
 install:
 - sudo apt-get install -qq python-dev libxml2-dev libxmlsec1-dev
+- pip install -q Django==$DJANGO_VERSION
 before_script:
 - pip install -e .
 - pip install pycodestyle
