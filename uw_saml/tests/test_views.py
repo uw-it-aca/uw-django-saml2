@@ -78,7 +78,7 @@ class SSOViewErrorTest(TestCase):
 
         # Invalid SAMLResponse
         request = RequestFactory().post(
-            reverse('saml_sso'), data={'SAMLResponse': None},
+            reverse('saml_sso'), data={'SAMLResponse': ''},
             HTTP_HOST='idp.uw.edu')
         SessionMiddleware().process_request(request)
         request.session.save()
