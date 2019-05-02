@@ -5,6 +5,7 @@ python:
 env:
 - DJANGO_VERSION=2.0
 - DJANGO_VERSION=2.1
+- DJANGO_VERSION=2.2
 install:
 - sudo apt-get install -qq python-dev libxml2-dev libxmlsec1-dev
 - pip install -q Django==$DJANGO_VERSION
