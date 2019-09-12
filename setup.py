@@ -24,7 +24,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'Django>=2.0,<2.3',
-        'python3-saml>=1.7.0',
+        'python3-saml>=1.8.0',
         'mock'
     ],
     license='Apache License, Version 2.0',
