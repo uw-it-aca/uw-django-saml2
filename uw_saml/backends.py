@@ -23,7 +23,13 @@ class _SAMLRemoteUserBackend(RemoteUserBackend):
     """
 
     def authenticate(self, request, remote_user):
-        return super().authenticate(request, remote_user)
+        user = super().authenticate(request, remote_user)
+        for perm in request.session['samlUserdata']['isMemberOf']:
+            user.user_permissions.add(
+                Permission.objects.get(codename=perm)
+            )
+        user.save()
+        return user
 
 
 def load_perm_from_settings(config):
@@ -45,22 +51,31 @@ def load_users_from_settings():
         try:
             UserModel.objects.get(username=user["username"])
         except UserModel.DoesNotExist:
-            UserModel.objects.create_user(user["username"], user['email'], user["password"])
+            new_user = UserModel.objects.create_user(
+                user["username"],
+                user['email'],
+                user["password"]
+            )
+            for perm in user["permissions"]:
+                new_user.user_permissions.add(
+                    Permission.objects.get(codename=perm)
+                )
+            new_user.save()
 
 
 def load_settings():
+    config = getattr(settings, 'UW_SAML_CONFIG', False)
+    if config:
+        load_perm_from_settings(config)
+    else:
+        ImproperlyConfigured('Missing "UW_SAML" dict in settings.py')
+
     global SAMLBackend
     if getattr(settings, 'MOCK_SAML_AUTH', False):
         SAMLBackend = _SAMLModelBackend
         load_users_from_settings()
     else:
         SAMLBackend = _SAMLRemoteUserBackend
-
-    config = getattr(settings, 'UW_SAML_CONFIG', False)
-    if config:
-        load_perm_from_settings(config)
-    else:
-        ImproperlyConfigured('Missing "UW_SAML" dict in settings.py')
 
 
 load_settings()

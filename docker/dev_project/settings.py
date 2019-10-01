@@ -165,17 +165,21 @@ UW_SAML = {
 UW_SAML_CONFIG = {
     'permissions': [
         {
-            'codename': 'perm_one',
-            'name': 'Perm One'
+            'codename': 'u_test_group',
+            'name': 'Test permission 1'
         },
         {
-            'codename': 'perm_two',
-            'name': 'Perm Two'
-        } 
+            'codename': 'u_test_another_group',
+            'name': 'Test permission 2'
+        },
+        {
+            'codename': 'u_astratest_myuw_test-support-admin',
+            'name': 'Test permission 3'
+        }
     ]
 }
 
-MOCK_SAML_AUTH = True
+# MOCK_SAML_AUTH = True
 MOCK_SAML_ATTRIBUTES = {
     'uwnetid': ['javerage'],
     'affiliations': ['student', 'member', 'alum', 'staff', 'employee'],
@@ -189,6 +193,10 @@ MOCK_SAML_USERS = [
     {
         "username": os.getenv('MOCK_USERNAME', None),
         "password": os.getenv('MOCK_PASSWORD', None),
-        "email": os.getenv('MOCK_EMAIL', None)
+        "email": os.getenv('MOCK_EMAIL', None),
+        "permissions": [
+            UW_SAML_CONFIG['permissions'][0]['codename'],
+            UW_SAML_CONFIG['permissions'][1]['codename']
+        ]
     }
 ]
