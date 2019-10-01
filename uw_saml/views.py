@@ -15,7 +15,8 @@ class SAMLLoginView(LoginView):
     template_name = 'mock_saml/login.html'
 
     def get(self, request, *args, **kwargs):
-        if (getattr(settings, 'MOCK_SAML_AUTH', False)):
+        mock_config = getattr(settings, 'UW_SAML_MOCK', False)
+        if 'ENABLED' in mock_config and mock_config['ENABLED']:
             return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return_url = request.GET.get(REDIRECT_FIELD_NAME)
@@ -27,7 +28,8 @@ class SAMLLogoutView(LogoutView):
     template_name = 'mock_saml/logout.html'
 
     def get(self, request, *args, **kwargs):
-        if (getattr(settings, 'MOCK_SAML_AUTH', False)):
+        mock_config = getattr(settings, 'UW_SAML_MOCK', False)
+        if 'ENABLED' in mock_config and mock_config['ENABLED']:
             return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return HttpResponseRedirect(auth.logout())

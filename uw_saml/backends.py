@@ -33,8 +33,8 @@ class _SAMLRemoteUserBackend(RemoteUserBackend):
 
 
 def load_perm_from_settings(config):
-    if 'permissions' in config:
-        for perm in config['permissions']:
+    if 'PERMISSIONS' in config:
+        for perm in config['PERMISSIONS']:
             try:
                 Permission.objects.get(codename=perm['codename'])
             except Permission.DoesNotExist:
@@ -46,21 +46,22 @@ def load_perm_from_settings(config):
                 )
 
 
-def load_users_from_settings():
-    for user in getattr(settings, 'MOCK_SAML_USERS', []):
-        try:
-            UserModel.objects.get(username=user["username"])
-        except UserModel.DoesNotExist:
-            new_user = UserModel.objects.create_user(
-                user["username"],
-                user['email'],
-                user["password"]
-            )
-            for perm in user["permissions"]:
-                new_user.user_permissions.add(
-                    Permission.objects.get(codename=perm)
+def load_users_from_settings(mock_config):
+    if 'SAML_USERS' in mock_config:
+        for user in mock_config['SAML_USERS']:
+            try:
+                UserModel.objects.get(username=user["username"])
+            except UserModel.DoesNotExist:
+                new_user = UserModel.objects.create_user(
+                    user["username"],
+                    user['email'],
+                    user["password"]
                 )
-            new_user.save()
+                for perm in user["permissions"]:
+                    new_user.user_permissions.add(
+                        Permission.objects.get(codename=perm)
+                    )
+                new_user.save()
 
 
 def load_settings():
@@ -70,10 +71,11 @@ def load_settings():
     else:
         ImproperlyConfigured('Missing "UW_SAML" dict in settings.py')
 
+    mock_config = getattr(settings, 'UW_SAML_MOCK', False)
     global SAMLBackend
-    if getattr(settings, 'MOCK_SAML_AUTH', False):
+    if 'ENABLED' in mock_config and mock_config['ENABLED']:
         SAMLBackend = _SAMLModelBackend
-        load_users_from_settings()
+        load_users_from_settings(mock_config)
     else:
         SAMLBackend = _SAMLRemoteUserBackend
 
