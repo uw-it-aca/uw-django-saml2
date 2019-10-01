@@ -6,6 +6,7 @@ RUN apt-get install -y libpq-dev
 RUN apt-get install -y postgresql-client-10
 
 USER acait
+
 ADD --chown=acait:acait ./docker /app/
 ADD --chown=acait:acait ./setup.py /app/
 ADD --chown=acait:acait ./uw_saml /app/uw_saml

@@ -40,10 +40,19 @@ def load_perm_from_settings(config):
                 )
 
 
+def load_users_from_settings():
+    for user in getattr(settings, 'MOCK_SAML_USERS', []):
+        try:
+            UserModel.objects.get(username=user["username"])
+        except UserModel.DoesNotExist:
+            UserModel.objects.create_user(user["username"], user['email'], user["password"])
+
+
 def load_settings():
     global SAMLBackend
     if getattr(settings, 'MOCK_SAML_AUTH', False):
         SAMLBackend = _SAMLModelBackend
+        load_users_from_settings()
     else:
         SAMLBackend = _SAMLRemoteUserBackend
 

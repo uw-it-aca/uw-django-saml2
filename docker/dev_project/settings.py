@@ -11,16 +11,15 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+SECRET_KEY = os.getenv('DJANGO_SECRET', None)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'fze4o+*-83xpe&$ok#0jlb+#@1==ksp5kv=)m3n7fyjk=)_$i8'
+if os.getenv('ENV', 'localdev') == "localdev":
+    SECRET_KEY = os.getenv('DJANGO_SECRET', get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -176,12 +175,20 @@ UW_SAML_CONFIG = {
     ]
 }
 
-# MOCK_SAML_AUTH = True
-# MOCK_SAML_ATTRIBUTES = {
-#     'uwnetid': ['javerage'],
-#     'affiliations': ['student', 'member', 'alum', 'staff', 'employee'],
-#     'eppn': ['javerage@washington.edu'],
-#     'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
-#     'isMemberOf': ['u_test_group', 'u_test_another_group',
-#                    'u_astratest_myuw_test-support-admin'],
-# }
+MOCK_SAML_AUTH = True
+MOCK_SAML_ATTRIBUTES = {
+    'uwnetid': ['javerage'],
+    'affiliations': ['student', 'member', 'alum', 'staff', 'employee'],
+    'eppn': ['javerage@washington.edu'],
+    'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
+    'isMemberOf': ['u_test_group', 'u_test_another_group',
+                   'u_astratest_myuw_test-support-admin'],
+}
+
+MOCK_SAML_USERS = [
+    {
+        "username": os.getenv('MOCK_USERNAME', None),
+        "password": os.getenv('MOCK_PASSWORD', None),
+        "email": os.getenv('MOCK_EMAIL', None)
+    }
+]

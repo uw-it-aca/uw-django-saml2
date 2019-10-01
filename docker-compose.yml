@@ -17,6 +17,9 @@ services:
       DATABASE_HOST: db
       DB: ${DB:-postgres}
       AUTH: ${AUTH:-SAML_MOCK}
+      MOCK_USERNAME: $MOCK_USERNAME
+      MOCK_PASSWORD: $MOCK_PASSWORD
+      MOCK_EMAIL: $MOCK_EMAIL
     ports:
       - "${RUNSERVER_PORT:-8000}:8000"
     stdin_open: true
