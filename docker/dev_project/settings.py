@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
+AUTHENTICATION_BACKENDS = ('uw_saml.backends.SAMLBackend',)
 
 # Application definition
 
@@ -123,6 +123,7 @@ STATIC_URL = '/static/'
 
 from django.urls import reverse_lazy
 LOGIN_URL = reverse_lazy('saml_login')
+LOGOUT_URL = reverse_lazy('saml_logout')
 
 UW_SAML = {
     'strict': False,
@@ -161,3 +162,26 @@ UW_SAML = {
         # 'requestedAuthnContext':  ['urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken']
     }
 }
+
+UW_SAML_CONFIG = {
+    'permissions': [
+        {
+            'codename': 'perm_one',
+            'name': 'Perm One'
+        },
+        {
+            'codename': 'perm_two',
+            'name': 'Perm Two'
+        } 
+    ]
+}
+
+# MOCK_SAML_AUTH = True
+# MOCK_SAML_ATTRIBUTES = {
+#     'uwnetid': ['javerage'],
+#     'affiliations': ['student', 'member', 'alum', 'staff', 'employee'],
+#     'eppn': ['javerage@washington.edu'],
+#     'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
+#     'isMemberOf': ['u_test_group', 'u_test_another_group',
+#                    'u_astratest_myuw_test-support-admin'],
+# }

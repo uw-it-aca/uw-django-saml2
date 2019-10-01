@@ -1,23 +1,34 @@
+from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
+
 from uw_saml.auth import DjangoSAML
 
 
 @method_decorator(never_cache, name='dispatch')
-class LoginView(View):
+class SAMLLoginView(LoginView):
+    template_name = 'mock_saml/login.html'
+    
     def get(self, request, *args, **kwargs):
+        if (getattr(settings, 'MOCK_SAML_AUTH', False)):
+            return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return_url = request.GET.get(REDIRECT_FIELD_NAME)
         return HttpResponseRedirect(auth.login(return_to=return_url))
 
 
 @method_decorator(never_cache, name='dispatch')
-class LogoutView(View):
+class SAMLLogoutView(LogoutView):
+    template_name = 'mock_saml/logout.html'
+    
     def get(self, request, *args, **kwargs):
+        if (getattr(settings, 'MOCK_SAML_AUTH', False)):
+            return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return HttpResponseRedirect(auth.logout())
 
