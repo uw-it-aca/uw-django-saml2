@@ -5,8 +5,8 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
 UserModel = get_user_model()
-
 SAMLBackend = None
+
 
 class _SAMLModelBackend(ModelBackend):
     """

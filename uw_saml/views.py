@@ -13,7 +13,7 @@ from uw_saml.auth import DjangoSAML
 @method_decorator(never_cache, name='dispatch')
 class SAMLLoginView(LoginView):
     template_name = 'mock_saml/login.html'
-    
+
     def get(self, request, *args, **kwargs):
         if (getattr(settings, 'MOCK_SAML_AUTH', False)):
             return super().get(request, *args, **kwargs)
@@ -25,7 +25,7 @@ class SAMLLoginView(LoginView):
 @method_decorator(never_cache, name='dispatch')
 class SAMLLogoutView(LogoutView):
     template_name = 'mock_saml/logout.html'
-    
+
     def get(self, request, *args, **kwargs):
         if (getattr(settings, 'MOCK_SAML_AUTH', False)):
             return super().get(request, *args, **kwargs)
