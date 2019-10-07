@@ -25,6 +25,19 @@ class LoginViewTest(TestCase):
                       response.url)
         self.assertEquals(response['Cache-Control'], CACHE_CONTROL)
 
+    def test_missing_request_data(self):
+        # Missing HTTP_HOST
+        request = RequestFactory().get(reverse('saml_login'))
+        SessionMiddleware().process_request(request)
+        self.request.session.save()
+
+        view_instance = LoginView.as_view()
+        response = view_instance(request)
+        self.assertContains(
+            response, 'SSO Error: Login Failed', status_code=400)
+        self.assertContains(
+            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
+
 
 class LogoutViewTest(TestCase):
     def setUp(self):
@@ -42,6 +55,19 @@ class LogoutViewTest(TestCase):
         self.assertIn(settings.UW_SAML['idp']['singleLogoutService']['url'],
                       response.url)
         self.assertEquals(response['Cache-Control'], CACHE_CONTROL)
+
+    def test_missing_request_data(self):
+        # Missing HTTP_HOST
+        request = RequestFactory().get(reverse('saml_logout'))
+        SessionMiddleware().process_request(request)
+        self.request.session.save()
+
+        view_instance = LogoutView.as_view()
+        response = view_instance(request)
+        self.assertContains(
+            response, 'SSO Error: Logout Failed', status_code=400)
+        self.assertContains(
+            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
 
 
 class SSOViewTest(TestCase):
@@ -65,8 +91,20 @@ class SSOViewTest(TestCase):
 
 
 class SSOViewErrorTest(TestCase):
-    def test_sso_error(self):
-        # Missing POST data
+    def test_missing_request_data(self):
+        # Missing HTTP_HOST
+        request = RequestFactory().post(reverse('saml_sso'))
+        SessionMiddleware().process_request(request)
+        request.session.save()
+
+        view_instance = SSOView.as_view()
+        response = view_instance(request)
+        self.assertContains(
+            response, 'SSO Error: Login Failed', status_code=400)
+        self.assertContains(
+            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
+
+    def test_missing_post_data(self):
         request = RequestFactory().post(
             reverse('saml_sso'), HTTP_HOST='example.uw.edu')
         SessionMiddleware().process_request(request)
@@ -76,7 +114,7 @@ class SSOViewErrorTest(TestCase):
         response = view_instance(request)
         self.assertContains(response, 'SSO Error:', status_code=400)
 
-        # Invalid SAMLResponse
+    def test_invalid_saml_response(self):
         request = RequestFactory().post(
             reverse('saml_sso'), data={'SAMLResponse': ''},
             HTTP_HOST='idp.uw.edu')
@@ -87,7 +125,7 @@ class SSOViewErrorTest(TestCase):
         response = view_instance(request)
         self.assertContains(response, 'SSO Error:', status_code=400)
 
-        # Invalid HTTP method
+    def test_invalid_http_method(self):
         request = RequestFactory().get(
             reverse('saml_sso'), HTTP_HOST='idp.uw.edu')
         SessionMiddleware().process_request(request)

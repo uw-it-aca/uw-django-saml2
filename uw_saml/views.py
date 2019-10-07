@@ -7,28 +7,45 @@ from django.views.decorators.csrf import csrf_exempt
 from uw_saml.auth import DjangoSAML
 
 
+class UWSAMLView(TemplateView):
+    template_name = 'uw_saml/sso_error.html'
+
+
 @method_decorator(never_cache, name='dispatch')
-class LoginView(View):
+class LoginView(UWSAMLView):
     def get(self, request, *args, **kwargs):
-        auth = DjangoSAML(request)
         return_url = request.GET.get(REDIRECT_FIELD_NAME)
-        return HttpResponseRedirect(auth.login(return_to=return_url))
+        try:
+            auth = DjangoSAML(request)
+            return HttpResponseRedirect(auth.login(return_to=return_url))
+        except KeyError as ex:
+            context = {'errors': ['Missing: {}'.format(ex)]}
+            return self.render_to_response(context, status=400)
 
 
 @method_decorator(never_cache, name='dispatch')
-class LogoutView(View):
+class LogoutView(UWSAMLView):
     def get(self, request, *args, **kwargs):
-        auth = DjangoSAML(request)
-        return HttpResponseRedirect(auth.logout())
+        try:
+            auth = DjangoSAML(request)
+            return HttpResponseRedirect(auth.logout())
+        except KeyError as ex:
+            context = {'error_msg': 'Logout Failed',
+                       'errors': ['Missing: {}'.format(ex)]}
+            return self.render_to_response(context, status=400)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class SSOView(TemplateView):
+class SSOView(UWSAMLView):
     http_method_names = ['post']
-    template_name = 'uw_saml/sso_error.html'
 
     def post(self, request, *args, **kwargs):
-        auth = DjangoSAML(request)
+        try:
+            auth = DjangoSAML(request)
+        except KeyError as ex:
+            context = {'errors': ['Missing: {}'.format(ex)]}
+            return self.render_to_response(context, status=400)
+
         try:
             auth.process_response()
         except Exception as ex:
