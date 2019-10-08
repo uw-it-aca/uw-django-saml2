@@ -6,6 +6,7 @@ from uw_saml.utils import is_member_of_group
 
 # Create your views here.
 
+
 @login_required
 def index(request):
     if is_member_of_group(request, settings.UW_SAML_PERMISSIONS['perm2']):

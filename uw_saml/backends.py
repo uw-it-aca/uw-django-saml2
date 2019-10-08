@@ -15,7 +15,7 @@ class _SAMLModelBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         a_user = super().authenticate(request, username, password, **kwargs)
-        
+
         mock_config = getattr(settings, 'UW_SAML_MOCK', False)
         if 'ENABLED' in mock_config and mock_config['ENABLED'] and a_user:
             for user in mock_config['SAML_USERS']:
@@ -28,7 +28,7 @@ class _SAMLModelBackend(ModelBackend):
                     )
         else:
             raise ImproperlyConfigured('SAML_MOCK change needs a restart')
-        
+
         return a_user
 
 
