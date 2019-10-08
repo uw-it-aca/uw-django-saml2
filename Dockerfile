@@ -14,3 +14,4 @@ ADD --chown=acait:acait ./uw_saml /app/uw_saml
 WORKDIR /app/
 
 RUN . /app/bin/activate && pip install .
+RUN /app/bin/python manage.py migrate

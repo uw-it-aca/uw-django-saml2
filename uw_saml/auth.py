@@ -34,11 +34,7 @@ class DjangoSAML(object):
     def __init__(self, request):
         self._request = request
 
-        if hasattr(settings, 'MOCK_SAML_ATTRIBUTES'):
-            self._implementation = Mock_Saml2_Auth()
-            self.process_response()
-
-        elif hasattr(settings, 'UW_SAML'):
+        if hasattr(settings, 'UW_SAML'):
             request_data = {
                 'https': 'on' if request.is_secure() else 'off',
                 'http_host': request.META['HTTP_HOST'],
@@ -59,7 +55,7 @@ class DjangoSAML(object):
                 request_data['https'] = 'on' if (
                     request.META[self.FORWARDED_PROTO] == 'https') else 'off'
 
-            self._implementation = OneLogin_Saml2_Auth(
+            self.one_login = OneLogin_Saml2_Auth(
                 request_data, old_settings=getattr(settings, 'UW_SAML'))
 
         else:
@@ -70,7 +66,7 @@ class DjangoSAML(object):
         Pass unshimmed method calls through to the implementation instance.
         """
         def handler(*args, **kwargs):
-            return getattr(self._implementation, name)(*args, **kwargs)
+            return getattr(self.one_login, name)(*args, **kwargs)
         return handler
 
     def login(self, **kwargs):
@@ -78,7 +74,7 @@ class DjangoSAML(object):
         Overrides the implementation method to add force_authn option.
         """
         kwargs['force_authn'] = getattr(settings, 'SAML_FORCE_AUTHN', False)
-        return self._implementation.login(**kwargs)
+        return self.login(**kwargs)
 
     def logout(self, **kwargs):
         """
@@ -90,14 +86,14 @@ class DjangoSAML(object):
         # Django logout
         logout(self._request)
 
-        return self._implementation.logout(**kwargs)
+        return self.logout(**kwargs)
 
     def process_response(self):
         """
         Overrides the implementation method to store the SAML attributes and
         add the Django login.
         """
-        self._implementation.process_response()
+        self.process_response()
 
         self._request.session['samlUserdata'] = self.get_attributes()
         self._request.session['samlNameId'] = self.get_nameid()
@@ -113,30 +109,10 @@ class DjangoSAML(object):
         attributes, mapping the default names to friendlier names.
         """
         attributes = {self.ATTRIBUTE_MAP.get(key, key): val for key, val in (
-            self._implementation.get_attributes().items())}
+            self.get_attributes().items())}
 
         if 'isMemberOf' in attributes:
             attributes['isMemberOf'] = [e.replace(self.GROUP_NS, '') for e in (
                 attributes['isMemberOf'])]
 
         return attributes
-
-
-class Mock_Saml2_Auth(object):
-    def login(self, **kwargs):
-        return kwargs.get('return_to', '')
-
-    def logout(self, **kwargs):
-        return kwargs.get('return_to', '')
-
-    def process_response(self):
-        return
-
-    def get_attributes(self):
-        return getattr(settings, 'MOCK_SAML_ATTRIBUTES')
-
-    def get_nameid(self):
-        return 'mock-nameid'
-
-    def get_session_index(self):
-        return 'mock-session-index'

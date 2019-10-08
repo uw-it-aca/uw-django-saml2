@@ -162,43 +162,31 @@ UW_SAML = {
     }
 }
 
-UW_SAML_CONFIG = {
-    'PERMISSIONS': [
-        {
-            'codename': 'u_test_group',
-            'name': 'Test permission 1'
-        },
-        {
-            'codename': 'u_test_another_group',
-            'name': 'Test permission 2'
-        },
-        {
-            'codename': 'u_astratest_myuw_test-support-admin',
-            'name': 'Test permission 3'
-        }
-    ]
+UW_SAML_PERMISSIONS = {
+    'perm1': 'u_test_group',
+    'perm2': 'u_test_another_group',
+    'perm3': 'u_astratest_myuw_test-support-admin'
 }
 
 UW_SAML_MOCK = {
     'ENABLED': True,
+    'NAME_ID': 'mock-nameid',
+    'SESSION_INDEX': 'mock-session',
     'SAML_USERS': [
         {
             "username": os.getenv('MOCK_USERNAME', None),
             "password": os.getenv('MOCK_PASSWORD', None),
             "email": os.getenv('MOCK_EMAIL', None),
-            "permissions": [
-                UW_SAML_CONFIG['PERMISSIONS'][0]['codename'],
-                UW_SAML_CONFIG['PERMISSIONS'][1]['codename']
-            ]
+            "MOCK_ATTRIBUTES" : {
+                'uwnetid': [os.getenv('MOCK_USERNAME', None)],
+                'affiliations': ['student', 'member'],
+                'eppn': ['javerage@washington.edu'],
+                'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
+                'isMemberOf': [
+                    UW_SAML_PERMISSIONS['perm1'],
+                    UW_SAML_PERMISSIONS['perm2']
+                ],
+            }
         }
     ]
 }
-
-# MOCK_SAML_ATTRIBUTES = {
-#     'uwnetid': ['javerage'],
-#     'affiliations': ['student', 'member', 'alum', 'staff', 'employee'],
-#     'eppn': ['javerage@washington.edu'],
-#     'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
-#     'isMemberOf': ['u_test_group', 'u_test_another_group',
-#                    'u_astratest_myuw_test-support-admin'],
-# }
