@@ -16,7 +16,7 @@ class SAMLLoginView(LoginView):
 
     def get(self, request, *args, **kwargs):
         if 'uw_saml.backends.SamlMockModelBackend' in \
-            settings.AUTHENTICATION_BACKENDS:
+           settings.AUTHENTICATION_BACKENDS:
             return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return_url = request.GET.get(REDIRECT_FIELD_NAME)
@@ -29,7 +29,7 @@ class SAMLLogoutView(LogoutView):
 
     def get(self, request, *args, **kwargs):
         if 'uw_saml.backends.SamlMockModelBackend' in \
-            settings.AUTHENTICATION_BACKENDS:
+           settings.AUTHENTICATION_BACKENDS:
             return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return HttpResponseRedirect(auth.logout())
