@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, get_backends
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
@@ -8,15 +8,22 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 
 from uw_saml.auth import DjangoSAML
+from uw_saml.backends import SamlMockModelBackend
+
+
+def _isMockSamlBackend():
+    for backend in get_backends():
+        if (isinstance(backend, SamlMockModelBackend)):
+            return True
+    return False
 
 
 @method_decorator(never_cache, name='dispatch')
-class SAMLLoginView(LoginView):
+class SAMLLoginView(LoginView if _isMockSamlBackend() else TemplateView):
     template_name = 'mock_saml/login.html'
 
     def get(self, request, *args, **kwargs):
-        if 'uw_saml.backends.SamlMockModelBackend' in \
-           settings.AUTHENTICATION_BACKENDS:
+        if _isMockSamlBackend():
             return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return_url = request.GET.get(REDIRECT_FIELD_NAME)
@@ -24,12 +31,11 @@ class SAMLLoginView(LoginView):
 
 
 @method_decorator(never_cache, name='dispatch')
-class SAMLLogoutView(LogoutView):
+class SAMLLogoutView(LogoutView if _isMockSamlBackend() else TemplateView):
     template_name = 'mock_saml/logout.html'
 
     def get(self, request, *args, **kwargs):
-        if 'uw_saml.backends.SamlMockModelBackend' in \
-           settings.AUTHENTICATION_BACKENDS:
+        if _isMockSamlBackend():
             return super().get(request, *args, **kwargs)
         auth = DjangoSAML(request)
         return HttpResponseRedirect(auth.logout())

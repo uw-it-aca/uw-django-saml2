@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory, override_settings
-from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth
+from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth
 from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES
 import mock
 
@@ -81,7 +81,7 @@ class LiveAuthTest(TestCase):
 
     def test_implementation(self):
         auth = DjangoSAML(self.request)
-        self.assertIsInstance(auth._implementation, OneLogin_Saml2_Auth)
+        self.assertIsInstance(auth.one_login, OneLogin_Saml2_Auth)
 
     @mock.patch.object(OneLogin_Saml2_Auth, 'login')
     def test_login(self, mock_login):

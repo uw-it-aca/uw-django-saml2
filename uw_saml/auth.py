@@ -74,7 +74,7 @@ class DjangoSAML(object):
         Overrides the implementation method to add force_authn option.
         """
         kwargs['force_authn'] = getattr(settings, 'SAML_FORCE_AUTHN', False)
-        return self.login(**kwargs)
+        return self.one_login.login(**kwargs)
 
     def logout(self, **kwargs):
         """
@@ -86,14 +86,14 @@ class DjangoSAML(object):
         # Django logout
         logout(self._request)
 
-        return self.logout(**kwargs)
+        return self.one_login.logout(**kwargs)
 
     def process_response(self):
         """
         Overrides the implementation method to store the SAML attributes and
         add the Django login.
         """
-        self.process_response()
+        self.one_login.process_response()
 
         self._request.session['samlUserdata'] = self.get_attributes()
         self._request.session['samlNameId'] = self.get_nameid()
@@ -109,7 +109,7 @@ class DjangoSAML(object):
         attributes, mapping the default names to friendlier names.
         """
         attributes = {self.ATTRIBUTE_MAP.get(key, key): val for key, val in (
-            self.get_attributes().items())}
+            self.one_login.get_attributes().items())}
 
         if 'isMemberOf' in attributes:
             attributes['isMemberOf'] = [e.replace(self.GROUP_NS, '') for e in (

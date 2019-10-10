@@ -16,6 +16,10 @@ INSTALLED_APPS = [
 
 ROOT_URLCONF = 'travis-ci.urls'
 
+ALLOWED_HOSTS = [
+    'example.uw.edu'
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
