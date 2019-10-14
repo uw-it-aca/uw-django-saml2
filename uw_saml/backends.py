@@ -16,7 +16,7 @@ class SamlMockModelBackend(ModelBackend):
             for user in mock_config['SAML_USERS']:
                 if user['username'] == username:
                     try:
-                        UserModel.objects.get_or_create(
+                        UserModel.objects.get(
                             username=user["username"]
                         )
                     except UserModel.DoesNotExist:
