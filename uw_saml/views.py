@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from uw_saml.auth import DjangoSAML
 
+
 class UWSAMLView(TemplateView):
     template_name = 'uw_saml/sso_error.html'
 

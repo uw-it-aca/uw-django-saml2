@@ -14,7 +14,19 @@ def _isMockSamlBackend():
 
 
 urlpatterns = [
-    url(r'login$', LoginView.as_view(template_name='mock_saml/login.html') if _isMockSamlBackend() else SAMLLoginView.as_view(), name='saml_login'),
-    url(r'logout$', LogoutView.as_view(template_name='mock_saml/logout.html') if _isMockSamlBackend() else SAMLLogoutView.as_view(), name='saml_logout'),
+    url(
+        r'login$',
+        (LoginView.as_view(template_name='mock_saml/login.html')
+         if _isMockSamlBackend()
+         else SAMLLoginView.as_view()),
+        name='saml_login'
+    ),
+    url(
+        r'logout$',
+        (LogoutView.as_view(template_name='mock_saml/logout.html')
+         if _isMockSamlBackend()
+         else SAMLLogoutView.as_view()),
+        name='saml_logout'
+    ),
     url(r'sso$', SSOView.as_view(), name='saml_sso'),
 ]
