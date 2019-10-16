@@ -24,7 +24,7 @@ class MockAuthTest(TestCase):
 
     def test_switcher(self):
         self.assertTrue(_isMockSamlBackend())
-    
+
     def test_authenticate(self):
         # Assert valid password
         self.assertTrue(authenticate(
@@ -32,7 +32,7 @@ class MockAuthTest(TestCase):
             username=UW_SAML_MOCK['SAML_USERS'][0]['username'],
             password=UW_SAML_MOCK['SAML_USERS'][0]['password'])
         )
-        
+
         # Assert invalid password
         self.assertFalse(authenticate(
             self.request,
@@ -70,7 +70,7 @@ class LiveAuthTest(TestCase):
     def test_implementation(self):
         auth = DjangoSAML(self.request)
         self.assertIsInstance(auth.one_login, OneLogin_Saml2_Auth)
-    
+
     def test_switcher(self):
         self.assertFalse(_isMockSamlBackend())
 
