@@ -1,69 +1,57 @@
-from django.conf import settings
-from django.urls import reverse
-from django.core.exceptions import ImproperlyConfigured
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import TestCase, RequestFactory, override_settings
-from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth
-from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES
 import mock
 
+from django.conf import settings
+from django.contrib.auth import authenticate, login
+from django.core.exceptions import ImproperlyConfigured
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.test import TestCase, RequestFactory, override_settings, Client
+from django.urls import reverse
 
-# @override_settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES)
-# class MockAuthTest(TestCase):
-#     def setUp(self):
-#         self.request = RequestFactory().post(
-#             reverse('saml_sso'), HTTP_HOST='example.uw.edu')
-#         self.request.user = None
-#         SessionMiddleware().process_request(self.request)
-#         self.request.session.save()
+from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth
+from uw_saml.tests import MOCK_SAML_ATTRIBUTES, UW_SAML_MOCK
+from uw_saml.urls import _isMockSamlBackend
 
-#     def test_implementation(self):
-#         auth = DjangoSAML(self.request)
-#         self.assertIsInstance(auth._implementation, Mock_Saml2_Auth)
-#         self.assertEquals(auth.get_nameid(), 'mock-nameid')
-#         self.assertEquals(auth.get_session_index(), 'mock-session-index')
 
-#     def test_get_attributes(self):
-#         auth = DjangoSAML(self.request)
-#         self.assertEquals(auth.get_attributes(), {
-#             'affiliations': ['student'],
-#             'eppn': ['javerage@washington.edu'], 'uwnetid': ['javerage'],
-#             'scopedAffiliations': ['student@washington.edu'],
-#             'isMemberOf': ['u_test_group', 'u_test2_group']})
+@override_settings(
+    AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
+    UW_SAML_MOCK=UW_SAML_MOCK
+)
+class MockAuthTest(TestCase):
+    def setUp(self):
+        self.request = RequestFactory().post(reverse('saml_login'))
+        SessionMiddleware().process_request(self.request)
+        self.request.session.save()
 
-#         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SESSION_ATTRIBUTES):
-#             auth = DjangoSAML(self.request)
-#             self.assertEquals(auth.get_attributes(), {
-#                 'affiliations': ['student'],
-#                 'eppn': ['javerage@washington.edu'], 'uwnetid': ['javerage'],
-#                 'scopedAffiliations': ['student@washington.edu'],
-#                 'isMemberOf': ['u_test_group', 'u_test2_group']})
+    def test_switcher(self):
+        self.assertTrue(_isMockSamlBackend())
+    
+    def test_authenticate(self):
+        # Assert valid password
+        self.assertTrue(authenticate(
+            self.request,
+            username=UW_SAML_MOCK['SAML_USERS'][0]['username'],
+            password=UW_SAML_MOCK['SAML_USERS'][0]['password'])
+        )
+        
+        # Assert invalid password
+        self.assertFalse(authenticate(
+            self.request,
+            username=UW_SAML_MOCK['SAML_USERS'][0]['username'],
+            password=(UW_SAML_MOCK['SAML_USERS'][0]['password'] + "_wrong"))
+        )
 
-#     def test_login(self):
-#         auth = DjangoSAML(self.request)
-#         url = auth.login(return_to='/test')
-#         self.assertEquals(url, '/test')
-#         self.assertEquals(self.request.user.is_authenticated, True)
-#         self.assertEquals(self.request.user.username, 'javerage')
+    def test_samlUserdata(self):
+        self.assertTrue(authenticate(
+            self.request,
+            username=UW_SAML_MOCK['SAML_USERS'][0]['username'],
+            password=UW_SAML_MOCK['SAML_USERS'][0]['password'])
+        )
 
-#         # Missing return_to arg
-#         auth = DjangoSAML(self.request)
-#         self.assertEquals(auth.login(), '')
-
-#     def test_logout(self):
-#         auth = DjangoSAML(self.request)
-#         url = auth.logout(return_to='/test')
-#         self.assertEquals(url, '/test')
-#         self.assertEquals(self.request.user.is_authenticated, False)
-#         self.assertEquals(self.request.user.username, '')
-
-#         # Missing return_to arg
-#         auth = DjangoSAML(self.request)
-#         self.assertEquals(auth.logout(), '')
-
-#     def test_nonexistent_method(self):
-#         auth = DjangoSAML(self.request)
-#         self.assertRaises(AttributeError, auth.fake_method)
+        self.assertTrue('samlUserdata' in self.request.session)
+        self.assertEqual(
+            self.request.session['samlUserdata'],
+            UW_SAML_MOCK['SAML_USERS'][0]['MOCK_ATTRIBUTES']
+        )
 
 
 class LiveAuthTest(TestCase):
@@ -82,6 +70,9 @@ class LiveAuthTest(TestCase):
     def test_implementation(self):
         auth = DjangoSAML(self.request)
         self.assertIsInstance(auth.one_login, OneLogin_Saml2_Auth)
+    
+    def test_switcher(self):
+        self.assertFalse(_isMockSamlBackend())
 
     @mock.patch.object(OneLogin_Saml2_Auth, 'login')
     def test_login(self, mock_login):
