@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory
-from uw_saml.views import LoginView, LogoutView, SSOView
+from uw_saml.views import SAMLLoginView, SAMLLogoutView, SSOView
 from uw_saml.auth import OneLogin_Saml2_Auth
 from uw_saml.tests import MOCK_SAML_ATTRIBUTES
 import mock
@@ -18,7 +18,7 @@ class LoginViewTest(TestCase):
         self.request.session.save()
 
     def test_login(self):
-        view_instance = LoginView.as_view()
+        view_instance = SAMLLoginView.as_view()
         response = view_instance(self.request)
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleSignOnService']['url'],
@@ -36,7 +36,7 @@ class LogoutViewTest(TestCase):
         self.request.session.save()
 
     def test_logout(self):
-        view_instance = LogoutView.as_view()
+        view_instance = SAMLLogoutView.as_view()
         response = view_instance(self.request)
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleLogoutService']['url'],

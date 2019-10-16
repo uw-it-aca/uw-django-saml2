@@ -102,3 +102,6 @@ ENV/
 
 # Editor - VS Code
 .vscode
+
+# Pipenv
+Pipfile
