@@ -31,7 +31,7 @@ class LoginViewTest(TestCase):
         SessionMiddleware().process_request(request)
         self.request.session.save()
 
-        view_instance = LoginView.as_view()
+        view_instance = SAMLLoginView.as_view()
         response = view_instance(request)
         self.assertContains(
             response, 'SSO Error: Login Failed', status_code=400)
@@ -62,7 +62,7 @@ class LogoutViewTest(TestCase):
         SessionMiddleware().process_request(request)
         self.request.session.save()
 
-        view_instance = LogoutView.as_view()
+        view_instance = SAMLLogoutView.as_view()
         response = view_instance(request)
         self.assertContains(
             response, 'SSO Error: Logout Failed', status_code=400)
