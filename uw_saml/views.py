@@ -14,7 +14,11 @@ class UWSAMLView(TemplateView):
 
 
 @method_decorator(never_cache, name='dispatch')
+<<<<<<< HEAD
 class SAMLLoginView(UWSAMLView):
+=======
+class LoginView(UWSAMLView):
+>>>>>>> develop
     def get(self, request, *args, **kwargs):
         return_url = request.GET.get(REDIRECT_FIELD_NAME)
         try:
@@ -26,7 +30,11 @@ class SAMLLoginView(UWSAMLView):
 
 
 @method_decorator(never_cache, name='dispatch')
+<<<<<<< HEAD
 class SAMLLogoutView(UWSAMLView):
+=======
+class LogoutView(UWSAMLView):
+>>>>>>> develop
     def get(self, request, *args, **kwargs):
         try:
             auth = DjangoSAML(request)
