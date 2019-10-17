@@ -53,6 +53,16 @@ class MockAuthTest(TestCase):
             UW_SAML_MOCK['SAML_USERS'][0]['MOCK_ATTRIBUTES']
         )
 
+    @override_settings(UW_SAML_MOCK=False)
+    def test_improper_config(self):
+        self.assertRaises(
+            ImproperlyConfigured,
+            authenticate,
+            self.request,
+            sername=UW_SAML_MOCK['SAML_USERS'][0]['username'],
+            password=UW_SAML_MOCK['SAML_USERS'][0]['password']
+        )
+
 
 class LiveAuthTest(TestCase):
     def setUp(self):
