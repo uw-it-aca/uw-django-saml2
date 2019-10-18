@@ -43,7 +43,9 @@ UW_SAML_MOCK = {
                     UW_SAML_PERMISSIONS['perm1'],
                     UW_SAML_PERMISSIONS['perm2']
                 ],
-            },
+            }
+        },
+        {
             "username": "test_user2",
             "password": "test_password2",
             "email": "test_user2@uw.edu",

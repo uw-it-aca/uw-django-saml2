@@ -39,7 +39,7 @@ class MockAuthTest(TestCase):
             username=UW_SAML_MOCK['SAML_USERS'][0]['username'],
             password=(UW_SAML_MOCK['SAML_USERS'][0]['password'] + "_wrong"))
         )
-        
+
         # Test user 2
         self.assertTrue(authenticate(
             self.request,
