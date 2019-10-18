@@ -26,18 +26,25 @@ class MockAuthTest(TestCase):
         self.assertTrue(_isMockSamlBackend())
 
     def test_authenticate(self):
-        # Assert valid password
+        # Assert valid password - user1
         self.assertTrue(authenticate(
             self.request,
             username=UW_SAML_MOCK['SAML_USERS'][0]['username'],
             password=UW_SAML_MOCK['SAML_USERS'][0]['password'])
         )
 
-        # Assert invalid password
+        # Assert invalid password - user1
         self.assertFalse(authenticate(
             self.request,
             username=UW_SAML_MOCK['SAML_USERS'][0]['username'],
             password=(UW_SAML_MOCK['SAML_USERS'][0]['password'] + "_wrong"))
+        )
+        
+        # Test user 2
+        self.assertTrue(authenticate(
+            self.request,
+            username=UW_SAML_MOCK['SAML_USERS'][1]['username'],
+            password=UW_SAML_MOCK['SAML_USERS'][1]['password'])
         )
 
     def test_samlUserdata(self):
