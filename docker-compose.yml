@@ -8,14 +8,7 @@ services:
       - ./docker/dev_app:/app/dev_app
       - ./docker/dev_project:/app/dev_project
       - ./uw_saml:/app/uw_saml
-    depends_on:
-      - db
     environment:
-      DATABASE_DB_NAME: postgres
-      DATABASE_USERNAME: postgres
-      DATABASE_HOSTNAME: ${DATABASE_HOSTNAME:-db}
-      DATABASE_HOST: db
-      DB: ${DB:-postgres}
       AUTH: ${AUTH:-SAML_MOCK}
       MOCK_USERNAME: $MOCK_USERNAME
       MOCK_PASSWORD: $MOCK_PASSWORD
@@ -24,10 +17,3 @@ services:
       - "${RUNSERVER_PORT:-8000}:8000"
     stdin_open: true
     tty: true
-  db:
-    image: postgres
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
