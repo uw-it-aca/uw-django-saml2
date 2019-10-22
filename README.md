@@ -93,6 +93,64 @@ replace `<some username>`, `<some password>`, `<some email>` with the values you
 You will use these to login when in mock mode. You can add more mock users by appending
 to the `SAML_USERS` array in `UW_SAML_MOCK`.
 
+### Some Recommendations
+
+#### Safetly setting login credentials
+
+Replace:
+
+`<some username>` with `os.getenv('MOCK_USERNAME', None)`,
+`<some password>` with `os.getenv('MOCK_PASSWORD', None)`,
+`<some email>` with `os.getenv('MOCK_EMAIL', None)`
+
+Create a `.env` file and add this:
+
+```
+MOCK_USERNAME=<desired username>
+MOCK_PASSWORD=<desired password>
+MOCK_EMAIL=<desired emailid>
+```
+
+If you are using docker:
+
+Add the following to your docker-compose inside the main app:
+
+```
+environment:
+    MOCK_USERNAME: $MOCK_USERNAME
+    MOCK_PASSWORD: $MOCK_PASSWORD
+    MOCK_EMAIL: $MOCK_EMAIL
+```
+
+If you are using pipenv it should just work.
+
+If you are using virtual env checkout https://pybit.es/persistent-environment-variables.html
+
+#### Maintaining login session across server restarts
+
+Make sure that:
+
+`SECRET_KEY = os.getenv('DJANGO_SECRET', get_random_secret_key())`
+
+Create a `.env` file and add this:
+
+```
+DJANGO_SECRET_KEY = <50 character random value>
+```
+
+If you are using docker:
+
+Add the following to your docker-compose inside the main app:
+
+```
+environment:
+    DJANGO_SECRET_KEY: $DJANGO_SECRET_KEY
+```
+
+If you are using pipenv it should just work.
+
+If you are using virtual env checkout https://pybit.es/persistent-environment-variables.html
+
 ## Running the sample SAML mock login app.
 
 A sample application with mocking turned is provided in the repo.
