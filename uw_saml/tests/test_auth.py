@@ -8,7 +8,8 @@ from django.test import TestCase, RequestFactory, override_settings, Client
 from django.urls import reverse
 
 from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth
-from uw_saml.tests import MOCK_SAML_ATTRIBUTES, UW_SAML_MOCK
+from uw_saml.tests import MOCK_SAML_ATTRIBUTES, UW_SAML_MOCK,\
+                          UW_SAML_MOCK_WITH_AUTO_LOGIN
 from uw_saml.urls import _isMockSamlBackend
 
 
@@ -16,7 +17,7 @@ from uw_saml.urls import _isMockSamlBackend
     AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
     UW_SAML_MOCK=UW_SAML_MOCK
 )
-class MockAuthTest(TestCase):
+class DjangoLoginAuthTest(TestCase):
     def setUp(self):
         self.request = RequestFactory().post(reverse('saml_login'))
         SessionMiddleware().process_request(self.request)
@@ -69,6 +70,21 @@ class MockAuthTest(TestCase):
             sername=UW_SAML_MOCK['SAML_USERS'][0]['username'],
             password=UW_SAML_MOCK['SAML_USERS'][0]['password']
         )
+
+
+@override_settings(
+    AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
+    UW_SAML_MOCK=UW_SAML_MOCK_WITH_AUTO_LOGIN
+)
+class AutoLoginAuthTest(TestCase):
+    def setUp(self):
+        self.request = RequestFactory().post(reverse('saml_login'))
+        SessionMiddleware().process_request(self.request)
+        self.request.session.save()
+
+    def test_loged_in(self):
+        self.assertEqual(self.request.user.username,
+                         settings.UW_SAML_MOCK['MOCK_USERS'][1]['username'])
 
 
 class LiveAuthTest(TestCase):
