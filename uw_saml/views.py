@@ -1,5 +1,7 @@
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import authenticate, login, REDIRECT_FIELD_NAME,\
+                                get_backends
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
@@ -7,6 +9,48 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 
 from uw_saml.auth import DjangoSAML
+from uw_saml.backends import SamlMockModelBackend
+
+
+def _isMockSamlBackend():
+    for backend in get_backends():
+        if (isinstance(backend, SamlMockModelBackend)):
+            return True
+    return False
+
+
+def _auto_login_shunt(request, mock_user):
+    user = authenticate(
+        request,
+        username=mock_user["username"],
+        password=mock_user["password"]
+    )
+    login(request, user)
+    return HttpResponseRedirect(request.GET.get('next'))
+
+
+def login_views_selector():
+    if _isMockSamlBackend():
+        mock_config = getattr(settings, 'UW_SAML_MOCK', False)
+        if mock_config:
+            if 'AUTO_LOGIN_USER' in mock_config:
+                return lambda request: _auto_login_shunt(
+                    request,
+                    mock_config['AUTO_LOGIN_USER']
+                )
+            else:
+                return LoginView.as_view(template_name='mock_saml/login.html')
+        else:
+            raise ImproperlyConfigured('UW_SAML_MOCK not found in settings')
+    else:
+        return SAMLLoginView.as_view()
+
+
+def logout_views_selector():
+    if _isMockSamlBackend():
+        return LogoutView.as_view(template_name='mock_saml/logout.html')
+    else:
+        return SAMLLoginView.as_view()
 
 
 class UWSAMLView(TemplateView):

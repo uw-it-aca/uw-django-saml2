@@ -192,3 +192,5 @@ UW_SAML_MOCK = {
         }
     ]
 }
+
+# UW_SAML_MOCK['AUTO_LOGIN_USER'] = UW_SAML_MOCK['SAML_USERS'][0]
