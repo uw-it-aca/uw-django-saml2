@@ -105,3 +105,4 @@ ENV/
 
 # Pipenv
 Pipfile
+Pipfile.lock

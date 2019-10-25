@@ -2,15 +2,18 @@ import mock
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import TestCase, RequestFactory, override_settings, Client
+from django.http import HttpResponseRedirect
+from django.contrib.sessions.models import Session
+from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse
 
 from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth
 from uw_saml.tests import MOCK_SAML_ATTRIBUTES, UW_SAML_MOCK,\
                           UW_SAML_MOCK_WITH_AUTO_LOGIN
-from uw_saml.urls import _isMockSamlBackend
+from uw_saml.views import _isMockSamlBackend, login_views_selector
 
 
 @override_settings(
@@ -78,13 +81,26 @@ class DjangoLoginAuthTest(TestCase):
 )
 class AutoLoginAuthTest(TestCase):
     def setUp(self):
-        self.request = RequestFactory().post(reverse('saml_login'))
+        self.request = RequestFactory().get(
+            reverse('saml_login') + "/?next=''"
+        )
         SessionMiddleware().process_request(self.request)
         self.request.session.save()
 
-    def test_loged_in(self):
-        self.assertEqual(self.request.user.username,
-                         settings.UW_SAML_MOCK['MOCK_USERS'][1]['username'])
+    def test_direct_to_redirect(self):
+        response = login_views_selector()(self.request)
+        self.assertIsInstance(response, HttpResponseRedirect)
+        SessionMiddleware().process_response(self.request, response)
+
+        session = Session.objects.get(
+            session_key=response.cookies['sessionid'].value
+        ).get_decoded()
+
+        user = User.objects.get(id=session.get('_auth_user_id'))
+        self.assertEqual(
+            user.username,
+            settings.UW_SAML_MOCK['AUTO_LOGIN_USER']['username']
+        )
 
 
 class LiveAuthTest(TestCase):
