@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, REDIRECT_FIELD_NAME,\
                                 get_backends
 from django.contrib.auth.views import LoginView, LogoutView
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView

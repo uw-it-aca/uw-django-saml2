@@ -1,3 +1,5 @@
+import copy
+
 MOCK_SAML_ATTRIBUTES = {
     'urn:oid:0.9.2342.19200300.100.1.1': ['javerage'],
     'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': ['student'],
@@ -66,6 +68,6 @@ UW_SAML_MOCK = {
     ]
 }
 
-UW_SAML_MOCK_WITH_AUTO_LOGIN = UW_SAML_MOCK
+UW_SAML_MOCK_WITH_AUTO_LOGIN = copy.deepcopy(UW_SAML_MOCK)
 UW_SAML_MOCK_WITH_AUTO_LOGIN['AUTO_LOGIN_USER'] = \
     UW_SAML_MOCK_WITH_AUTO_LOGIN['SAML_USERS'][1]

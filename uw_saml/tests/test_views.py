@@ -1,11 +1,12 @@
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth.views import LoginView, LogoutView
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect
 from django.test import TestCase, RequestFactory, override_settings
 from uw_saml.views import SAMLLoginView, SAMLLogoutView, SSOView,\
-                          logout_views_selector
+                          logout_views_selector, login_views_selector
 from uw_saml.auth import OneLogin_Saml2_Auth
 from uw_saml.tests import MOCK_SAML_ATTRIBUTES, UW_SAML_MOCK,\
                           UW_SAML_MOCK_WITH_AUTO_LOGIN
@@ -17,7 +18,7 @@ CACHE_CONTROL = 'max-age=0, no-cache, no-store, must-revalidate'
 class LoginViewTest(TestCase):
     def setUp(self):
         self.request = RequestFactory().get(
-            reverse('saml_login'), HTTP_HOST='example.uw.edu')
+            reverse('saml_login') + "/?next=''", HTTP_HOST='example.uw.edu')
         SessionMiddleware().process_request(self.request)
         self.request.session.save()
 
@@ -41,6 +42,35 @@ class LoginViewTest(TestCase):
             response, 'SSO Error: Login Failed', status_code=400)
         self.assertContains(
             response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
+
+    def real_view_test(self):
+        func = login_views_selector()
+        self.assertEqual(func, SAMLLoginView.as_view())
+
+    @override_settings(
+        AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
+        UW_SAML_MOCK=UW_SAML_MOCK
+    )
+    def test_mock_login(self):
+        func = login_views_selector()
+        self.assertEqual(func.__name__, LoginView.as_view().__name__)
+
+    @override_settings(
+        AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
+        UW_SAML_MOCK=UW_SAML_MOCK_WITH_AUTO_LOGIN
+    )
+    def test_mock_auto_login(self):
+        response = login_views_selector()(self.request)
+        self.assertIsInstance(response, HttpResponseRedirect)
+
+    @override_settings(
+        AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
+    )
+    def test_improper_config(self):
+        self.assertRaises(
+            ImproperlyConfigured,
+            login_views_selector
+        )
 
 
 class LogoutViewTest(TestCase):
@@ -74,22 +104,22 @@ class LogoutViewTest(TestCase):
             response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
 
     def real_view_test(self):
-        response = logout_views_selector()(self.request)
-        self.assertIsInstance(response, SAMLLogoutView.as_view())
+        func = logout_views_selector()
+        self.assertEqual(func, SAMLLogoutView.as_view())
 
     @override_settings(
         AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
         UW_SAML_MOCK=UW_SAML_MOCK
     )
     def test_mock_logout(self):
-        response = logout_views_selector()(self.request)
-        self.assertIsInstance(response, LogoutView.as_view())
+        func = logout_views_selector()
+        self.assertEqual(func.__name__, LogoutView.as_view().__name__)
 
     @override_settings(
         AUTHENTICATION_BACKENDS=['uw_saml.backends.SamlMockModelBackend'],
         UW_SAML_MOCK=UW_SAML_MOCK_WITH_AUTO_LOGIN
     )
-    def test_mock_logout(self):
+    def test_mock_auto_logout(self):
         response = logout_views_selector()(self.request)
         self.assertIsInstance(response, HttpResponseRedirect)
 
