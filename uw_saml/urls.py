@@ -10,6 +10,14 @@ urlpatterns = [
 
 if (hasattr(settings, 'DJANGO_LOGIN_MOCK_SAML')):
     urlpatterns += [
-        re_path(r'^mock_saml/login', LoginView.as_view(), name='mock_saml_login'),
-        re_path(r'^mock_saml/logout', LogoutView.as_view(), name='mock_saml_logout'),
+        re_path(
+            r'^mock_saml/login',
+            LoginView.as_view(),
+            name='mock_saml_login'
+        ),
+        re_path(
+            r'^mock_saml/logout',
+            LogoutView.as_view(),
+            name='mock_saml_logout'
+        ),
     ]

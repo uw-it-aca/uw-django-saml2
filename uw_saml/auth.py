@@ -39,7 +39,7 @@ class DjangoSAML(object):
         if hasattr(settings, 'MOCK_SAML_ATTRIBUTES'):
             self._implementation = Mock_Saml2_Auth()
             self.process_response()
-        
+
         elif hasattr(settings, 'DJANGO_LOGIN_MOCK_SAML'):
             self._implementation = Django_Login_Mock_Saml2_Auth(request)
             self.process_response()
@@ -147,6 +147,7 @@ class Mock_Saml2_Auth(object):
     def get_session_index(self):
         return 'mock-session-index'
 
+
 class Django_Login_Mock_Saml2_Auth(object):
     def __init__(self, request):
         saml_users = getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SAML_USERS']
@@ -160,12 +161,18 @@ class Django_Login_Mock_Saml2_Auth(object):
                     user["password"]
                 )
         self.request = request
-    
+
     def login(self, **kwargs):
-        return "{}?return_to={}".format(reverse_lazy('mock_saml_login'), kwargs.get('return_to', ''))
+        return "{}?return_to={}".format(
+            reverse_lazy('mock_saml_login'),
+            kwargs.get('return_to', '')
+        )
 
     def logout(self, **kwargs):
-        return "{}?return_to={}".format(reverse_lazy('mock_saml_logout'), kwargs.get('return_to', ''))
+        return "{}?return_to={}".format(
+            reverse_lazy('mock_saml_logout'),
+            kwargs.get('return_to', '')
+        )
 
     def process_response(self):
         self.username = request.user.username
