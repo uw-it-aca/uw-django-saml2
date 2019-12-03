@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
+from django.urls import reverse_lazy
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
 
@@ -36,6 +38,10 @@ class DjangoSAML(object):
 
         if hasattr(settings, 'MOCK_SAML_ATTRIBUTES'):
             self._implementation = Mock_Saml2_Auth()
+            self.process_response()
+        
+        elif hasattr(settings, 'DJANGO_LOGIN_MOCK_SAML'):
+            self._implementation = Django_Login_Mock_Saml2_Auth(request)
             self.process_response()
 
         elif hasattr(settings, 'UW_SAML'):
@@ -140,3 +146,40 @@ class Mock_Saml2_Auth(object):
 
     def get_session_index(self):
         return 'mock-session-index'
+
+class Django_Login_Mock_Saml2_Auth(object):
+    def __init__(self, request):
+        saml_users = getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SAML_USERS']
+        for user in saml_users:
+            try:
+                User.objects.get(username=user["username"])
+            except User.ObjectDoesNotExist:
+                User.objects.create_user(
+                    user["username"],
+                    user["email"],
+                    user["password"]
+                )
+        self.request = request
+    
+    def login(self, **kwargs):
+        return "{}?return_to={}".format(reverse_lazy('mock_saml_login'), kwargs.get('return_to', ''))
+
+    def logout(self, **kwargs):
+        return "{}?return_to={}".format(reverse_lazy('mock_saml_logout'), kwargs.get('return_to', ''))
+
+    def process_response(self):
+        self.username = request.user.username
+        return
+
+    def get_attributes(self):
+        saml_users = getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SAML_USERS']
+        for i, user in enumerate(saml_users):
+            if (user["username"] == self.username):
+                return user['MOCK_ATTRIBUTES']
+        return {}
+
+    def get_nameid(self):
+        return getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['NAME_ID']
+
+    def get_session_index(self):
+        return getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SESSION_INDEX']
