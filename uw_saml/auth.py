@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.urls import reverse_lazy
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
@@ -42,7 +42,6 @@ class DjangoSAML(object):
 
         elif hasattr(settings, 'DJANGO_LOGIN_MOCK_SAML'):
             self._implementation = Django_Login_Mock_Saml2_Auth(request)
-            self.process_response()
 
         elif hasattr(settings, 'UW_SAML'):
             request_data = {
@@ -154,7 +153,7 @@ class Django_Login_Mock_Saml2_Auth(object):
         for user in saml_users:
             try:
                 User.objects.get(username=user["username"])
-            except User.ObjectDoesNotExist:
+            except ObjectDoesNotExist:
                 User.objects.create_user(
                     user["username"],
                     user["email"],
@@ -163,13 +162,13 @@ class Django_Login_Mock_Saml2_Auth(object):
         self.request = request
 
     def login(self, **kwargs):
-        return "{}?return_to={}".format(
+        return "{}?next={}".format(
             reverse_lazy('mock_saml_login'),
             kwargs.get('return_to', '')
         )
 
     def logout(self, **kwargs):
-        return "{}?return_to={}".format(
+        return "{}?next={}".format(
             reverse_lazy('mock_saml_logout'),
             kwargs.get('return_to', '')
         )

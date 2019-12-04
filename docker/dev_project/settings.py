@@ -26,10 +26,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-if os.getenv('ENV', 'localdev') == "localdev":
-    AUTHENTICATION_BACKENDS = ('uw_saml.backends.SamlMockModelBackend',)
-else:
-    AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
 
 # Application definition
 
@@ -171,7 +168,7 @@ UW_SAML_PERMISSIONS = {
     'perm3': 'u_astratest_myuw_test-support-admin'
 }
 
-UW_SAML_MOCK = {
+DJANGO_LOGIN_MOCK_SAML = {
     'NAME_ID': 'mock-nameid',
     'SESSION_INDEX': 'mock-session',
     'SAML_USERS': [
