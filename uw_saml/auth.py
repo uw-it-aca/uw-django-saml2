@@ -175,7 +175,10 @@ class Django_Login_Mock_Saml2_Auth(object):
         )
 
     def process_response(self):
-        self.username = self.request.user.username
+        if self.request.user.is_authenticated:
+            self.username = self.request.user.username
+        else:
+            self.username = ""
         return
 
     def get_attributes(self):
