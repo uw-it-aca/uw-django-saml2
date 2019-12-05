@@ -3,8 +3,10 @@ from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory, override_settings
-from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth
-from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES
+from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth,\
+    Django_Login_Mock_Saml2_Auth
+from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES,\
+    UW_SAML_PERMISSIONS, DJANGO_LOGIN_MOCK_SAML
 import mock
 
 
@@ -64,6 +66,26 @@ class MockAuthTest(TestCase):
     def test_nonexistent_method(self):
         auth = DjangoSAML(self.request)
         self.assertRaises(AttributeError, auth.fake_method)
+
+
+@override_settings(
+    UW_SAML_PERMISSIONS=UW_SAML_PERMISSIONS,
+    DJANGO_LOGIN_MOCK_SAML=DJANGO_LOGIN_MOCK_SAML
+)
+class DjangoLoginAuthTest(TestCase):
+    def setUp(self):
+        self.request = RequestFactory().post(
+            reverse('saml_sso'), data={'SAMLResponse': ''},
+            HTTP_HOST='idp.uw.edu')
+        SessionMiddleware().process_request(self.request)
+        self.request.session.save()
+
+    def test_implementation(self):
+        auth = DjangoSAML(self.request)
+        self.assertIsInstance(
+            auth._implementation,
+            Django_Login_Mock_Saml2_Auth
+        )
 
 
 class LiveAuthTest(TestCase):

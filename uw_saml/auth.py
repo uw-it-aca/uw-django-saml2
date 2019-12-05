@@ -187,10 +187,14 @@ class Django_Login_Mock_Saml2_Auth(object):
         raise ImproperlyConfigured('This user does not exist in SAML_USERS')
 
     def get_nameid(self):
-        return getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['NAME_ID']
+        if 'NAME_ID' in self.saml_users:
+            return self.saml_users['NAME_ID']
+        return 'mock-nameid'
 
     def get_session_index(self):
-        return getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SESSION_INDEX']
+        if 'SESSION_INDEX' in self.saml_users:
+            return self.saml_users['SESSION_INDEX']
+        return 'mock-session'
     
     def get_errors(self):
         return []
