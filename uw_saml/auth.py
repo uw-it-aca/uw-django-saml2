@@ -150,7 +150,9 @@ class Mock_Saml2_Auth(object):
 
 class Django_Login_Mock_Saml2_Auth(object):
     def __init__(self, request):
-        self.saml_users = getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SAML_USERS']
+        self.saml_users = getattr(
+            settings, 'DJANGO_LOGIN_MOCK_SAML'
+        )['SAML_USERS']
         for user in self.saml_users:
             try:
                 User.objects.get(username=user["username"])
@@ -195,7 +197,7 @@ class Django_Login_Mock_Saml2_Auth(object):
         if 'SESSION_INDEX' in self.saml_users:
             return self.saml_users['SESSION_INDEX']
         return 'mock-session'
-    
+
     def get_errors(self):
         return []
 

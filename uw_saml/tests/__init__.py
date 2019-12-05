@@ -31,11 +31,14 @@ DJANGO_LOGIN_MOCK_SAML = {
             "username": "test-username",
             "password": "test-password",
             "email": "test-email",
-            "MOCK_ATTRIBUTES" : {
+            "MOCK_ATTRIBUTES": {
                 'uwnetid': ["test-username"],
                 'affiliations': ['student', 'member'],
                 'eppn': ['javerage@washington.edu'],
-                'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
+                'scopedAffiliations': [
+                    'student@washington.edu',
+                    'member@washington.edu'
+                ],
                 'isMemberOf': [
                     UW_SAML_PERMISSIONS['perm1'],
                     UW_SAML_PERMISSIONS['perm2']
