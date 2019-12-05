@@ -68,10 +68,6 @@ class SSOView(UWSAMLView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class MockSSOLogin(DjangoLoginView):
-    def get(self, request, *args, **kwargs):
-        response = super().get(self, request, *args, **kwargs)
-        return response
-
     def post(self, request, *args, **kwargs):
         response = super().post(self, request, *args, **kwargs)
         if response.status_code == 302:

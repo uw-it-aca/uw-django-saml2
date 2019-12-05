@@ -184,7 +184,7 @@ class Django_Login_Mock_Saml2_Auth(object):
         for i, user in enumerate(self.saml_users):
             if (user["username"] == self.username):
                 return user['MOCK_ATTRIBUTES']
-        return {}
+        raise ImproperlyConfigured('This user does not exist in SAML_USERS')
 
     def get_nameid(self):
         return getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['NAME_ID']
