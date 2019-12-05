@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist,\
+    PermissionDenied
 from django.urls import reverse_lazy
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
@@ -149,40 +150,38 @@ class Mock_Saml2_Auth(object):
 
 class Django_Login_Mock_Saml2_Auth(object):
     def __init__(self, request):
-        saml_users = getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SAML_USERS']
-        for user in saml_users:
+        self.saml_users = getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SAML_USERS']
+        for user in self.saml_users:
             try:
                 User.objects.get(username=user["username"])
             except ObjectDoesNotExist:
                 User.objects.create_user(
                     user["username"],
-                    user["email"],
-                    user["password"]
-                )
+                    email=user["email"],
+                    password=user["password"]
+                ).save()
         self.request = request
 
     def login(self, **kwargs):
         return "{}?next={}".format(
-            reverse_lazy('mock_saml_login'),
+            reverse_lazy('mock_sso_login'),
             kwargs.get('return_to', '')
         )
 
     def logout(self, **kwargs):
-        return "{}?next={}".format(
-            reverse_lazy('mock_saml_logout'),
-            kwargs.get('return_to', '')
-        )
+        return kwargs.get('return_to', '')
 
     def process_response(self):
         if self.request.user.is_authenticated:
             self.username = self.request.user.username
         else:
-            self.username = ""
+            raise PermissionDenied(
+                'The request must be authenticated before it can be processed'
+            )
         return
 
     def get_attributes(self):
-        saml_users = getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SAML_USERS']
-        for i, user in enumerate(saml_users):
+        for i, user in enumerate(self.saml_users):
             if (user["username"] == self.username):
                 return user['MOCK_ATTRIBUTES']
         return {}
@@ -192,3 +191,9 @@ class Django_Login_Mock_Saml2_Auth(object):
 
     def get_session_index(self):
         return getattr(settings, 'DJANGO_LOGIN_MOCK_SAML')['SESSION_INDEX']
+    
+    def get_errors(self):
+        return []
+
+    def redirect_to(self, url):
+        return url

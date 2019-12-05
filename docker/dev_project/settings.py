@@ -24,7 +24,7 @@ if os.getenv('ENV', 'localdev') == "localdev":
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
 
@@ -167,6 +167,10 @@ UW_SAML_PERMISSIONS = {
     'perm2': 'u_test_another_group',
     'perm3': 'u_astratest_myuw_test-support-admin'
 }
+
+# Login mock settings
+
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
 
 DJANGO_LOGIN_MOCK_SAML = {
     'NAME_ID': 'mock-nameid',

@@ -1,22 +1,16 @@
 from django.conf import settings
 from django.conf.urls import url
-from django.contrib.auth.views import LoginView as MockLoginView, \
-    LogoutView as MockLogoutView
-from uw_saml.views import LoginView, LogoutView, SSOView
+from uw_saml.views import LoginView, LogoutView, SSOView, \
+    MockSSOLogin
 
 urlpatterns = []
 
 if (hasattr(settings, 'DJANGO_LOGIN_MOCK_SAML')):
     urlpatterns += [
         url(
-            r'^mock_login$',
-            MockLoginView.as_view(),
-            name='mock_saml_login'
-        ),
-        url(
-            r'^mock_logout$',
-            MockLogoutView.as_view(),
-            name='mock_saml_logout'
+            r'^mock_sso_login$',
+            MockSSOLogin.as_view(template_name='uw_saml/mock/login.html'),
+            name='mock_sso_login'
         ),
     ]
 

@@ -1,9 +1,14 @@
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import LoginView as DjangoLoginView,\
+    LogoutView as DjangoLogoutView
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponseRedirect
+from django.test import RequestFactory
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse_lazy, resolve
 from uw_saml.auth import DjangoSAML
 
 
@@ -59,3 +64,23 @@ class SSOView(UWSAMLView):
 
         return_url = request.POST.get('RelayState')
         return HttpResponseRedirect(auth.redirect_to(return_url))
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MockSSOLogin(DjangoLoginView):
+    def get(self, request, *args, **kwargs):
+        response = super().get(self, request, *args, **kwargs)
+        return response
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(self, request, *args, **kwargs)
+        if response.status_code == 302:
+            saml_sso_url = reverse_lazy('saml_sso')
+            manufactured_request = RequestFactory().post(
+                saml_sso_url,
+                data={"RelayState": self.get_redirect_url()}
+            )
+            manufactured_request.user = request.user
+            manufactured_request.session = request.session
+            resolve(saml_sso_url).func(manufactured_request)
+        return response
