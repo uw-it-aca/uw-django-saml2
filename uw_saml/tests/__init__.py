@@ -28,11 +28,11 @@ DJANGO_LOGIN_MOCK_SAML = {
     'SESSION_INDEX': 'mock-session',
     'SAML_USERS': [
         {
-            "username": "test-username",
-            "password": "test-password",
-            "email": "test-email",
+            "username": "test_username",
+            "password": "test_password",
+            "email": "test_email",
             "MOCK_ATTRIBUTES": {
-                'uwnetid': ["test-username"],
+                'uwnetid': ["test_username"],
                 'affiliations': ['student', 'member'],
                 'eppn': ['javerage@washington.edu'],
                 'scopedAffiliations': [

@@ -1,4 +1,5 @@
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView as DjangoLoginView,\
     LogoutView as DjangoLogoutView
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -76,7 +77,8 @@ class MockSSOLogin(DjangoLoginView):
                 saml_sso_url,
                 data={"RelayState": self.get_redirect_url()}
             )
-            manufactured_request.user = request.user
+            manufactured_request.user =\
+                User.objects.get(pk=request.session['_auth_user_id'])
             manufactured_request.session = request.session
             resolve(saml_sso_url).func(manufactured_request)
         return response
