@@ -24,8 +24,8 @@ UW_SAML_PERMISSIONS = {
 }
 
 DJANGO_LOGIN_MOCK_SAML = {
-    'NAME_ID': 'mock-nameid',
-    'SESSION_INDEX': 'mock-session',
+    'NAME_ID': 'test-mock-nameid',
+    'SESSION_INDEX': 'test-mock-session',
     'SAML_USERS': [
         {
             "username": "test_username",
