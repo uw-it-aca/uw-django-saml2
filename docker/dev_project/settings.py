@@ -195,3 +195,11 @@ UW_SAML_PERMISSIONS = {
 # }
 
 # UW_SAML_MOCK['AUTO_LOGIN_USER'] = UW_SAML_MOCK['SAML_USERS'][0]
+
+# MOCK_SAML_ATTRIBUTES = {
+#     'uwnetid': ['javerage'],
+#     'affiliations': ['student', 'member'],
+#     'eppn': ['javerage@washington.edu'],
+#     'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
+#     'isMemberOf': ['u_test_group', 'u_test_another_group'],
+# }
