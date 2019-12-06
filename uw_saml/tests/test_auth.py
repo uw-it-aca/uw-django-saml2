@@ -94,7 +94,7 @@ class DjangoLoginAuthTest(TestCase):
             auth._implementation,
             Django_Login_Mock_Saml2_Auth
         )
-    
+
     def test_login(self):
         auth = DjangoSAML(self.request)
         self.assertEqual(
@@ -111,7 +111,7 @@ class DjangoLoginAuthTest(TestCase):
             auth.logout(return_to='return_to_url'),
             "{}".format('return_to_url')
         )
-    
+
     def test_bad_process_response(self):
         self.request.user = AnonymousUser()
         auth = DjangoSAML(self.request)
