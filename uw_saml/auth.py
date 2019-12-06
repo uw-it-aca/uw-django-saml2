@@ -150,10 +150,10 @@ class Mock_Saml2_Auth(object):
 
 class Django_Login_Mock_Saml2_Auth(object):
     def __init__(self, request):
-        self.saml_users = getattr(
+        self.dl_saml_data = getattr(
             settings, 'DJANGO_LOGIN_MOCK_SAML'
-        )['SAML_USERS']
-        for user in self.saml_users:
+        )
+        for user in self.dl_saml_data['SAML_USERS']:
             try:
                 User.objects.get(username=user["username"])
             except ObjectDoesNotExist:
@@ -183,19 +183,19 @@ class Django_Login_Mock_Saml2_Auth(object):
         return
 
     def get_attributes(self):
-        for i, user in enumerate(self.saml_users):
+        for i, user in enumerate(self.dl_saml_data['SAML_USERS']):
             if (user["username"] == self.username):
                 return user['MOCK_ATTRIBUTES']
         raise ImproperlyConfigured('This user does not exist in SAML_USERS')
 
     def get_nameid(self):
-        if 'NAME_ID' in self.saml_users:
-            return self.saml_users['NAME_ID']
+        if 'NAME_ID' in self.dl_saml_data:
+            return self.dl_saml_data['NAME_ID']
         return 'mock-nameid'
 
     def get_session_index(self):
-        if 'SESSION_INDEX' in self.saml_users:
-            return self.saml_users['SESSION_INDEX']
+        if 'SESSION_INDEX' in self.dl_saml_data:
+            return self.dl_saml_data['SESSION_INDEX']
         return 'mock-session'
 
     def get_errors(self):
