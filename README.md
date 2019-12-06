@@ -168,24 +168,3 @@ environment:
 If you are using pipenv it should just work.
 
 If you are using virtual env checkout https://pybit.es/persistent-environment-variables.html
-
-## Running the sample SAML mock login app.
-
-A sample application with mocking turned is provided in the repo.
-To run the demo create a file named `.env` locally.
-Add the following to the file:
-
-```
-MOCK_USERNAME=<some username>
-MOCK_PASSWORD=<some password>
-MOCK_EMAIL=<some email>
-```
-
-replace `<some username>`, `<some password>`, `<some email>` with the values you want.
-You will use these to login to the sample app.
-
-run `docker-compose up` to run the sample app. After the django server is running navigate
-to `localhost:8000/dev_app/`
-
-you should be redirected to the login page. You can use the `<some username>`, `<some password>`
-values to login now.
