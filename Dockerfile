@@ -1,10 +1,5 @@
 FROM acait/django-container:1.0.6 as django
 
-USER root
-RUN apt-get update
-RUN apt-get install -y libpq-dev
-RUN apt-get install -y postgresql-client-10
-
 USER acait
 
 ADD --chown=acait:acait ./docker /app/

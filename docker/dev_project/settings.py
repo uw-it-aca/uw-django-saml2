@@ -201,5 +201,5 @@ UW_SAML_PERMISSIONS = {
 #     'affiliations': ['student', 'member'],
 #     'eppn': ['javerage@washington.edu'],
 #     'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
-#     'isMemberOf': ['u_test_group', 'u_test_another_group'],
+#     'isMemberOf': [UW_SAML_PERMISSIONS['perm1'], UW_SAML_PERMISSIONS['perm2']],
 # }
