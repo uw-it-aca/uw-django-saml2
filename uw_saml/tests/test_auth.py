@@ -132,16 +132,24 @@ class DjangoLoginAuthTest(TestCase):
         with self.assertRaises(ImproperlyConfigured):
             auth.get_attributes()
 
-    def test_default_get_nameid(self):
+    def test_get_nameid(self):
         auth = DjangoSAML(self.request)
+        self.assertEquals(
+            auth.get_nameid(),
+            'test-mock-nameid'
+        )
         del settings.DJANGO_LOGIN_MOCK_SAML['NAME_ID']
         self.assertEquals(
             auth.get_nameid(),
             'mock-nameid'
         )
 
-    def test_default_get_session_index(self):
+    def test_get_session_index(self):
         auth = DjangoSAML(self.request)
+        self.assertEquals(
+            auth.get_session_index(),
+            'test-mock-session'
+        )
         del settings.DJANGO_LOGIN_MOCK_SAML['SESSION_INDEX']
         self.assertEquals(
             auth.get_session_index(),
