@@ -148,7 +148,7 @@ class SSOViewErrorTest(TestCase):
 class DjangoLoginViewTest(TestCase):
     def setUp(self):
         self.request_factory = RequestFactory()
-    
+
     def tearDown(self):
         User.objects.all().delete()
 
@@ -160,24 +160,29 @@ class DjangoLoginViewTest(TestCase):
         SessionMiddleware().process_request(req)
         req.session.save()
         req._dont_enforce_csrf_checks = True
-        
+
         # Initalized so the users are loaded
         Django_Login_Mock_Saml2_Auth(req)
-        resp = MockSSOLogin.as_view(template_name='uw_saml/mock/login.html')(req)
+        resp =\
+            MockSSOLogin.as_view(template_name='uw_saml/mock/login.html')(req)
         self.assertEqual(resp.status_code, 302)
-    
+
     def test_login_invalid(self):
         req = self.request_factory.post(
             'mock_sso_login',
-            data={'username': 'test_username', 'password': 'test_wrong_password'},
+            data={
+                'username': 'test_username',
+                'password': 'test_wrong_password'
+            },
         )
         SessionMiddleware().process_request(req)
         req.session.save()
         AuthenticationMiddleware().process_request(req)
         req._dont_enforce_csrf_checks = True
         # req.user = AnonymousUser()
-        
+
         # Initalized so the users are loaded
         Django_Login_Mock_Saml2_Auth(req)
-        resp = MockSSOLogin.as_view(template_name='uw_saml/mock/login.html')(req)
+        resp =\
+            MockSSOLogin.as_view(template_name='uw_saml/mock/login.html')(req)
         self.assertEqual(resp.status_code, 200)
