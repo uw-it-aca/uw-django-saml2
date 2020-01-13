@@ -165,7 +165,6 @@ UW_SAML = {
 UW_SAML_PERMISSIONS = {
     'perm1': 'u_test_group',
     'perm2': 'u_test_another_group',
-    'perm3': 'u_astratest_myuw_test-support-admin'
 }
 
 # Login mock settings
