@@ -1,8 +1,9 @@
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import (
+    authenticate, login, logout, REDIRECT_FIELD_NAME)
 from django.contrib.auth.models import User
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist,\
-    PermissionDenied
+from django.core.exceptions import (
+    ImproperlyConfigured, ObjectDoesNotExist, PermissionDenied)
 from django.urls import reverse_lazy
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
@@ -165,8 +166,8 @@ class Django_Login_Mock_Saml2_Auth(object):
         self.request = request
 
     def login(self, **kwargs):
-        return "{}?next={}".format(
-            reverse_lazy('mock_sso_login'),
+        return "{}?{}={}".format(
+            reverse_lazy('mock_sso_login'), REDIRECT_FIELD_NAME,
             kwargs.get('return_to', '')
         )
 

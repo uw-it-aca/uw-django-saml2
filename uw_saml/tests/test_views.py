@@ -6,10 +6,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory, override_settings
-from uw_saml.views import LoginView, LogoutView, SSOView, MockSSOLogin
+from uw_saml.views import LoginView, LogoutView, SSOView, MockSSOLoginView
 from uw_saml.auth import OneLogin_Saml2_Auth, Django_Login_Mock_Saml2_Auth
-from uw_saml.tests import MOCK_SAML_ATTRIBUTES, UW_SAML_PERMISSIONS,\
-    DJANGO_LOGIN_MOCK_SAML
+from uw_saml.tests import (
+    MOCK_SAML_ATTRIBUTES, UW_SAML_PERMISSIONS, DJANGO_LOGIN_MOCK_SAML)
 
 CACHE_CONTROL = 'max-age=0, no-cache, no-store, must-revalidate'
 
@@ -163,8 +163,7 @@ class DjangoLoginViewTest(TestCase):
 
         # Initalized so the users are loaded
         Django_Login_Mock_Saml2_Auth(req)
-        resp =\
-            MockSSOLogin.as_view(template_name='uw_saml/mock/login.html')(req)
+        resp = MockSSOLoginView.as_view()(req)
         self.assertEqual(resp.status_code, 302)
 
     def test_login_invalid(self):
@@ -183,6 +182,5 @@ class DjangoLoginViewTest(TestCase):
 
         # Initalized so the users are loaded
         Django_Login_Mock_Saml2_Auth(req)
-        resp =\
-            MockSSOLogin.as_view(template_name='uw_saml/mock/login.html')(req)
+        resp = MockSSOLoginView.as_view()(req)
         self.assertEqual(resp.status_code, 200)

@@ -1,15 +1,13 @@
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView as DjangoLoginView,\
-    LogoutView as DjangoLogoutView
-from django.contrib.sessions.middleware import SessionMiddleware
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.http import HttpResponseRedirect
 from django.test import RequestFactory
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse_lazy, resolve
 from uw_saml.auth import DjangoSAML
 
 
@@ -68,17 +66,22 @@ class SSOView(UWSAMLView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MockSSOLogin(DjangoLoginView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(self, request, *args, **kwargs)
-        if response.status_code == 302:
-            saml_sso_url = reverse_lazy('saml_sso')
-            manufactured_request = RequestFactory().post(
-                saml_sso_url,
-                data={"RelayState": self.get_redirect_url()}
-            )
-            manufactured_request.user =\
-                User.objects.get(pk=request.session['_auth_user_id'])
-            manufactured_request.session = request.session
-            resolve(saml_sso_url).func(manufactured_request)
-        return response
+class MockSSOLoginView(DjangoLoginView):
+    """
+    Overrides LoginView.form_valid() to insert a mocked SSO Login.
+    """
+    template_name = 'uw_saml/mock/login.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        manufactured_request = RequestFactory().post(
+            reverse_lazy('saml_sso'),
+            data={'RelayState': self.get_success_url()}
+        )
+        manufactured_request.user = (
+            User.objects.get(pk=self.request.session['_auth_user_id']))
+        manufactured_request.session = self.request.session
+
+        sso_view = SSOView.as_view()
+        return sso_view(manufactured_request)
