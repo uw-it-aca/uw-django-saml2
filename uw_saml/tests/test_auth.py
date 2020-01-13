@@ -1,11 +1,17 @@
 from django.conf import settings
-from django.urls import reverse
-from django.core.exceptions import ImproperlyConfigured
+from django.urls import reverse, reverse_lazy, clear_url_caches
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied,\
+    ImproperlyConfigured
+from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory, override_settings
-from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth
-from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES
+from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth,\
+    Django_Login_Mock_Saml2_Auth
+from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES,\
+    UW_SAML_PERMISSIONS, DJANGO_LOGIN_MOCK_SAML
 import mock
+import sys
+from importlib import reload
 
 
 @override_settings(MOCK_SAML_ATTRIBUTES=MOCK_SAML_ATTRIBUTES)
@@ -64,6 +70,91 @@ class MockAuthTest(TestCase):
     def test_nonexistent_method(self):
         auth = DjangoSAML(self.request)
         self.assertRaises(AttributeError, auth.fake_method)
+
+
+@override_settings(
+    UW_SAML_PERMISSIONS=UW_SAML_PERMISSIONS,
+    DJANGO_LOGIN_MOCK_SAML=DJANGO_LOGIN_MOCK_SAML,
+    AUTHENTICATION_BACKENDS=('django.contrib.auth.backends.ModelBackend',)
+)
+class DjangoLoginAuthTest(TestCase):
+    def setUp(self):
+        clear_url_caches()
+        reload(sys.modules['uw_saml.urls'])
+        reload(sys.modules[settings.ROOT_URLCONF])
+        self.request = RequestFactory().post(
+            reverse('saml_sso'), data={'SAMLResponse': ''},
+            HTTP_HOST='idp.uw.edu')
+        SessionMiddleware().process_request(self.request)
+        self.request.session.save()
+
+    def test_implementation(self):
+        auth = DjangoSAML(self.request)
+        self.assertIsInstance(
+            auth._implementation,
+            Django_Login_Mock_Saml2_Auth
+        )
+
+    def test_login(self):
+        auth = DjangoSAML(self.request)
+        self.assertEqual(
+            auth.login(return_to='return_to_url'),
+            "{}?next={}".format(
+                reverse_lazy('mock_sso_login'),
+                'return_to_url'
+            )
+        )
+
+    def test_logout(self):
+        auth = DjangoSAML(self.request)
+        self.assertEqual(
+            auth.logout(return_to='return_to_url'),
+            "{}".format('return_to_url')
+        )
+
+    def test_bad_process_response(self):
+        self.request.user = AnonymousUser()
+        auth = DjangoSAML(self.request)
+        with self.assertRaises(PermissionDenied):
+            auth.process_response()
+
+    def test_get_attributes(self):
+        auth = DjangoSAML(self.request)
+        auth._implementation.username = 'test_username'
+        self.assertEquals(
+            auth.get_attributes(),
+            settings.DJANGO_LOGIN_MOCK_SAML['SAML_USERS'][0]['MOCK_ATTRIBUTES']
+        )
+
+    def test_bad_get_attributes(self):
+        auth = DjangoSAML(self.request)
+        auth._implementation.username = 'test_not_username'
+        with self.assertRaises(ImproperlyConfigured):
+            auth.get_attributes()
+
+    def test_get_nameid(self):
+        auth = DjangoSAML(self.request)
+        self.assertEquals(
+            auth.get_nameid(),
+            'test-mock-nameid'
+        )
+        del settings.DJANGO_LOGIN_MOCK_SAML['NAME_ID']
+        self.assertEquals(
+            auth.get_nameid(),
+            'mock-nameid'
+        )
+
+    def test_get_session_index(self):
+        auth = DjangoSAML(self.request)
+        self.assertEquals(
+            auth.get_session_index(),
+            'test-mock-session'
+        )
+        del settings.DJANGO_LOGIN_MOCK_SAML['SESSION_INDEX']
+        self.assertEquals(
+            auth.get_session_index(),
+            'mock-session'
+        )
 
 
 class LiveAuthTest(TestCase):
