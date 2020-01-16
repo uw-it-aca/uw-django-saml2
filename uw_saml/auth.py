@@ -167,7 +167,7 @@ class Django_Login_Mock_Saml2_Auth(object):
 
     def login(self, **kwargs):
         return "{}?{}={}".format(
-            reverse_lazy('mock_sso_login'), REDIRECT_FIELD_NAME,
+            reverse_lazy('login_django'), REDIRECT_FIELD_NAME,
             kwargs.get('return_to', '')
         )
 
