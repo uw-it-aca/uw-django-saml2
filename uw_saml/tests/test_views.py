@@ -154,7 +154,7 @@ class DjangoLoginViewTest(TestCase):
 
     def test_login_valid(self):
         req = self.request_factory.post(
-            'mock_sso_login',
+            'login_django',
             data={'username': 'test_username', 'password': 'test_password'},
         )
         SessionMiddleware().process_request(req)
@@ -168,7 +168,7 @@ class DjangoLoginViewTest(TestCase):
 
     def test_login_invalid(self):
         req = self.request_factory.post(
-            'mock_sso_login',
+            'login_django',
             data={
                 'username': 'test_username',
                 'password': 'test_wrong_password'
