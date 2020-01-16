@@ -11,5 +11,5 @@ urlpatterns = [
 
 if (hasattr(settings, 'DJANGO_LOGIN_MOCK_SAML')):
     urlpatterns.append(re_path(
-        r'^mock_sso_login$', MockSSOLoginView.as_view(), name='mock_sso_login')
+        r'^login_django$', MockSSOLoginView.as_view(), name='login_django')
     )

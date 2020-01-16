@@ -100,7 +100,7 @@ class DjangoLoginAuthTest(TestCase):
         self.assertEqual(
             auth.login(return_to='return_to_url'),
             "{}?next={}".format(
-                reverse_lazy('mock_sso_login'),
+                reverse_lazy('login_django'),
                 'return_to_url'
             )
         )

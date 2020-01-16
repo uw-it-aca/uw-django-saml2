@@ -85,7 +85,7 @@ AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
 Also add the following:
 
 ```
-UW_SAML_MOCK = {
+DJANGO_LOGIN_MOCK_SAML = {
     'NAME_ID': 'mock-nameid',
     'SESSION_INDEX': 'mock-session',
     'SAML_USERS': [
