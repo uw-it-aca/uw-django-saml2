@@ -79,7 +79,7 @@ To mock a SAML-authenticated session in your app change the
 `AUTHENTICATION_BACKENDS` to include the mock backend.
 
 ```
-AUTHENTICATION_BACKENDS = ('uw_saml.backends.SamlMockModelBackend',)
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
 ```
 
 Also add the following:
