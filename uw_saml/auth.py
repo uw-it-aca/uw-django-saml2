@@ -1,6 +1,10 @@
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
-from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth import (
+    authenticate, login, logout, REDIRECT_FIELD_NAME)
+from django.contrib.auth.models import User
+from django.core.exceptions import (
+    ImproperlyConfigured, ObjectDoesNotExist, PermissionDenied)
+from django.urls import reverse_lazy
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
 
@@ -37,6 +41,9 @@ class DjangoSAML(object):
         if hasattr(settings, 'MOCK_SAML_ATTRIBUTES'):
             self._implementation = Mock_Saml2_Auth()
             self.process_response()
+
+        elif hasattr(settings, 'DJANGO_LOGIN_MOCK_SAML'):
+            self._implementation = Django_Login_Mock_Saml2_Auth(request)
 
         elif hasattr(settings, 'UW_SAML'):
             request_data = {
@@ -140,3 +147,60 @@ class Mock_Saml2_Auth(object):
 
     def get_session_index(self):
         return 'mock-session-index'
+
+
+class Django_Login_Mock_Saml2_Auth(object):
+    def __init__(self, request):
+        self.dl_saml_data = getattr(
+            settings, 'DJANGO_LOGIN_MOCK_SAML'
+        )
+        for user in self.dl_saml_data['SAML_USERS']:
+            try:
+                User.objects.get(username=user["username"])
+            except ObjectDoesNotExist:
+                User.objects.create_user(
+                    user["username"],
+                    email=user["email"],
+                    password=user["password"]
+                ).save()
+        self.request = request
+
+    def login(self, **kwargs):
+        return "{}?{}={}".format(
+            reverse_lazy('mock_sso_login'), REDIRECT_FIELD_NAME,
+            kwargs.get('return_to', '')
+        )
+
+    def logout(self, **kwargs):
+        return kwargs.get('return_to', '')
+
+    def process_response(self):
+        if self.request.user.is_authenticated:
+            self.username = self.request.user.username
+        else:
+            raise PermissionDenied(
+                'The request must be authenticated before it can be processed'
+            )
+        return
+
+    def get_attributes(self):
+        for i, user in enumerate(self.dl_saml_data['SAML_USERS']):
+            if (user["username"] == self.username):
+                return user['MOCK_ATTRIBUTES']
+        raise ImproperlyConfigured('This user does not exist in SAML_USERS')
+
+    def get_nameid(self):
+        if 'NAME_ID' in self.dl_saml_data:
+            return self.dl_saml_data['NAME_ID']
+        return 'mock-nameid'
+
+    def get_session_index(self):
+        if 'SESSION_INDEX' in self.dl_saml_data:
+            return self.dl_saml_data['SESSION_INDEX']
+        return 'mock-session'
+
+    def get_errors(self):
+        return []
+
+    def redirect_to(self, url):
+        return url

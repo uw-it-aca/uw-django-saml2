@@ -72,3 +72,99 @@ MOCK_SAML_ATTRIBUTES = {
     'isMemberOf': ['u_test_group', 'u_test_another_group'],
 }
 ```
+
+## Mocking a SAML login with a Django Login
+
+To mock a SAML-authenticated session in your app change the
+`AUTHENTICATION_BACKENDS` to include the mock backend.
+
+```
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
+```
+
+Also add the following:
+
+```
+UW_SAML_MOCK = {
+    'NAME_ID': 'mock-nameid',
+    'SESSION_INDEX': 'mock-session',
+    'SAML_USERS': [
+        {
+            "username": <some username>,
+            "password": <some password>,
+            "email": <some email>,
+            "MOCK_ATTRIBUTES" : {
+                'uwnetid': [<some username>],
+                'affiliations': ['student', 'member'],
+                'eppn': ['javerage@washington.edu'],
+                'scopedAffiliations': ['student@washington.edu', 'member@washington.edu'],
+                'isMemberOf': [
+                    'u_test_group', 'u_test_another_group'
+                ],
+            }
+        }
+    ]
+}
+```
+
+replace `<some username>`, `<some password>`, `<some email>` with the values you want.
+You will use these to login when in mock mode. You can add more mock users by appending
+to the `SAML_USERS` array in `UW_SAML_MOCK`.
+
+### Some Recommendations
+
+#### Safetly setting login credentials
+
+Replace:
+
+`<some username>` with `os.getenv('MOCK_USERNAME', None)`,
+`<some password>` with `os.getenv('MOCK_PASSWORD', None)`,
+`<some email>` with `os.getenv('MOCK_EMAIL', None)`
+
+Create a `.env` file and add this:
+
+```
+MOCK_USERNAME=<desired username>
+MOCK_PASSWORD=<desired password>
+MOCK_EMAIL=<desired emailid>
+```
+
+If you are using docker:
+
+Add the following to your docker-compose inside the main app:
+
+```
+environment:
+    MOCK_USERNAME: $MOCK_USERNAME
+    MOCK_PASSWORD: $MOCK_PASSWORD
+    MOCK_EMAIL: $MOCK_EMAIL
+```
+
+If you are using pipenv it should just work.
+
+If you are using virtual env checkout https://pybit.es/persistent-environment-variables.html
+
+#### Maintaining login session across server restarts
+
+Make sure that:
+
+`SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', get_random_secret_key())`
+
+Create a `.env` file and add this:
+
+```
+DJANGO_SECRET_KEY = <50 character random value>
+```
+
+If you are using docker:
+
+Add the following to your docker-compose inside the main app:
+
+```
+environment:
+    DJANGO_SECRET_KEY: $DJANGO_SECRET_KEY
+```
+
+If you are using pipenv it should just work.
+
+If you are using virtual env checkout https://pybit.es/persistent-environment-variables.html

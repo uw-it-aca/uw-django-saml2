@@ -1,5 +1,9 @@
+from django.contrib.auth.models import User
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.http import HttpResponseRedirect
+from django.test import RequestFactory
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
 from django.views.decorators.cache import never_cache
@@ -59,3 +63,25 @@ class SSOView(UWSAMLView):
 
         return_url = request.POST.get('RelayState')
         return HttpResponseRedirect(auth.redirect_to(return_url))
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MockSSOLoginView(DjangoLoginView):
+    """
+    Overrides LoginView.form_valid() to insert a mocked SSO Login.
+    """
+    template_name = 'uw_saml/mock/login.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        manufactured_request = RequestFactory().post(
+            reverse_lazy('saml_sso'),
+            data={'RelayState': self.get_success_url()}
+        )
+        manufactured_request.user = (
+            User.objects.get(pk=self.request.session['_auth_user_id']))
+        manufactured_request.session = self.request.session
+
+        sso_view = SSOView.as_view()
+        return sso_view(manufactured_request)

@@ -1,11 +1,15 @@
+import mock
+import json
 from django.conf import settings
 from django.urls import reverse
+from django.contrib.auth.models import User
+from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import TestCase, RequestFactory
-from uw_saml.views import LoginView, LogoutView, SSOView
-from uw_saml.auth import OneLogin_Saml2_Auth
-from uw_saml.tests import MOCK_SAML_ATTRIBUTES
-import mock
+from django.test import TestCase, RequestFactory, override_settings
+from uw_saml.views import LoginView, LogoutView, SSOView, MockSSOLoginView
+from uw_saml.auth import OneLogin_Saml2_Auth, Django_Login_Mock_Saml2_Auth
+from uw_saml.tests import (
+    MOCK_SAML_ATTRIBUTES, UW_SAML_PERMISSIONS, DJANGO_LOGIN_MOCK_SAML)
 
 CACHE_CONTROL = 'max-age=0, no-cache, no-store, must-revalidate'
 
@@ -134,3 +138,49 @@ class SSOViewErrorTest(TestCase):
         view_instance = SSOView.as_view()
         response = view_instance(request)
         self.assertEquals(response.status_code, 405)
+
+
+@override_settings(
+    UW_SAML_PERMISSIONS=UW_SAML_PERMISSIONS,
+    DJANGO_LOGIN_MOCK_SAML=DJANGO_LOGIN_MOCK_SAML,
+    AUTHENTICATION_BACKENDS=('django.contrib.auth.backends.ModelBackend',)
+)
+class DjangoLoginViewTest(TestCase):
+    def setUp(self):
+        self.request_factory = RequestFactory()
+
+    def tearDown(self):
+        User.objects.all().delete()
+
+    def test_login_valid(self):
+        req = self.request_factory.post(
+            'mock_sso_login',
+            data={'username': 'test_username', 'password': 'test_password'},
+        )
+        SessionMiddleware().process_request(req)
+        req.session.save()
+        req._dont_enforce_csrf_checks = True
+
+        # Initalized so the users are loaded
+        Django_Login_Mock_Saml2_Auth(req)
+        resp = MockSSOLoginView.as_view()(req)
+        self.assertEqual(resp.status_code, 302)
+
+    def test_login_invalid(self):
+        req = self.request_factory.post(
+            'mock_sso_login',
+            data={
+                'username': 'test_username',
+                'password': 'test_wrong_password'
+            },
+        )
+        SessionMiddleware().process_request(req)
+        req.session.save()
+        AuthenticationMiddleware().process_request(req)
+        req._dont_enforce_csrf_checks = True
+        # req.user = AnonymousUser()
+
+        # Initalized so the users are loaded
+        Django_Login_Mock_Saml2_Auth(req)
+        resp = MockSSOLoginView.as_view()(req)
+        self.assertEqual(resp.status_code, 200)

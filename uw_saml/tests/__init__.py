@@ -16,3 +16,33 @@ MOCK_SESSION_ATTRIBUTES = {
     'scopedAffiliations': ['student@washington.edu'],
     'isMemberOf': ['u_test_group', 'u_test2_group'],
 }
+
+UW_SAML_PERMISSIONS = {
+    'perm1': 'u_test_group',
+    'perm2': 'u_test_another_group',
+}
+
+DJANGO_LOGIN_MOCK_SAML = {
+    'NAME_ID': 'test-mock-nameid',
+    'SESSION_INDEX': 'test-mock-session',
+    'SAML_USERS': [
+        {
+            "username": "test_username",
+            "password": "test_password",
+            "email": "test_email",
+            "MOCK_ATTRIBUTES": {
+                'uwnetid': ["test_username"],
+                'affiliations': ['student', 'member'],
+                'eppn': ['javerage@washington.edu'],
+                'scopedAffiliations': [
+                    'student@washington.edu',
+                    'member@washington.edu'
+                ],
+                'isMemberOf': [
+                    UW_SAML_PERMISSIONS['perm1'],
+                    UW_SAML_PERMISSIONS['perm2']
+                ],
+            }
+        }
+    ]
+}
