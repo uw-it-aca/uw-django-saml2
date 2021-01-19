@@ -1,29 +1,9 @@
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-SECRET_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-
-DEBUG = True
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
 
-INSTALLED_APPS = [
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
+INSTALLED_APPS += [
     'uw_saml'
 ]
-
-ROOT_URLCONF = 'travis-ci.urls'
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-    },
-]
-
-WSGI_APPLICATION = 'travis-ci.wsgi.application'
 
 from django.urls import reverse_lazy
 LOGIN_URL = reverse_lazy('saml_login')
@@ -65,12 +45,3 @@ UW_SAML = {
         # 'requestedAuthnContext':  ['urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken']
     }
 }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-STATIC_URL = '/static/'
