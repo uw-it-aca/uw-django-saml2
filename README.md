@@ -1,6 +1,6 @@
 # uw-django-saml2
 
-[![Build Status](https://api.travis-ci.org/uw-it-aca/uw-django-saml2.svg?branch=master)](https://travis-ci.org/uw-it-aca/uw-django-saml2)
+[![Build Status](https://github.com/uw-it-aca/uw-django-saml2/workflows/Test,%20Publish/badge.svg?branch=master)](https://github.com/uw-it-aca/uw-django-saml2/actions)
 [![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/uw-django-saml2/badge.svg?branch=master)](https://coveralls.io/github/uw-it-aca/uw-django-saml2?branch=master)
 [![PyPi Version](https://img.shields.io/pypi/v/uw-django-saml2.svg)](https://pypi.python.org/pypi/uw-django-saml2)
 ![Python versions](https://img.shields.io/pypi/pyversions/uw-django-saml2.svg)
@@ -32,7 +32,7 @@ LOGIN_URL = reverse_lazy('saml_login')
 ### Add your SP config
 
 This app uses Django settings to configure the SP and IdP. Copy the `UW_SAML`
-setting dict in `travis-ci/settings.py` to your `project/settings.py`.
+setting dict in `test/settings.py` to your `project/settings.py`.
 
 You will need to update these settings to the correct values for your SP:
 
