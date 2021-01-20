@@ -23,11 +23,12 @@
 #  4) Update the matrix of django versions to test, if necessary.
 #
 ---
-name: Test, Publish
+name: tests
 
 env:
   APP_NAME: uw_saml
   CONF_PATH: conf
+  COVERAGE_DJANGO_VERSION: 2.2
 
 on:
   push:
@@ -74,7 +75,7 @@ jobs:
           test -f ${CONF_PATH}/urls.py && cp ${CONF_PATH}/urls.py project/
           test -f ${CONF_PATH}/settings.py && cat ${CONF_PATH}/settings.py >> project/settings.py
 
-      - name: Run Linters
+      - name: Run Pycodestyle
         run: pycodestyle ${APP_NAME}/
 
       - name: Run Migrations
@@ -85,8 +86,8 @@ jobs:
           python -m compileall ${APP_NAME}/
           coverage run --source=${APP_NAME}/ manage.py test ${APP_NAME}
 
-      - name: Test Coverage
-        if: matrix.django-version == 2.2
+      - name: Report Test Coverage
+        if: matrix.django-version == COVERAGE_DJANGO_VERSION
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
