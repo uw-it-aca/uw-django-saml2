@@ -27,7 +27,7 @@ class LoginViewTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleSignOnService']['url'],
                       response.url)
-        self.assertEquals(response['Cache-Control'], CACHE_CONTROL)
+        self.assertIn(CACHE_CONTROL, response.get('Cache-Control'))
 
     def test_missing_request_data(self):
         # Missing HTTP_HOST
@@ -36,11 +36,12 @@ class LoginViewTest(TestCase):
         self.request.session.save()
 
         view_instance = LoginView.as_view()
-        response = view_instance(request)
+        response = view_instance(request).render()
         self.assertContains(
             response, 'SSO Error: Login Failed', status_code=400)
         self.assertContains(
-            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
+            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400,
+            html=True)
 
 
 class LogoutViewTest(TestCase):
@@ -58,7 +59,7 @@ class LogoutViewTest(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleLogoutService']['url'],
                       response.url)
-        self.assertEquals(response['Cache-Control'], CACHE_CONTROL)
+        self.assertIn(CACHE_CONTROL, response.get('Cache-Control'))
 
     def test_missing_request_data(self):
         # Missing HTTP_HOST
@@ -67,11 +68,12 @@ class LogoutViewTest(TestCase):
         self.request.session.save()
 
         view_instance = LogoutView.as_view()
-        response = view_instance(request)
+        response = view_instance(request).render()
         self.assertContains(
             response, 'SSO Error: Logout Failed', status_code=400)
         self.assertContains(
-            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
+            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400,
+            html=True)
 
 
 class SSOViewTest(TestCase):
@@ -102,11 +104,12 @@ class SSOViewErrorTest(TestCase):
         request.session.save()
 
         view_instance = SSOView.as_view()
-        response = view_instance(request)
+        response = view_instance(request).render()
         self.assertContains(
             response, 'SSO Error: Login Failed', status_code=400)
         self.assertContains(
-            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400)
+            response, 'Missing: &#39;HTTP_HOST&#39;', status_code=400,
+            html=True)
 
     def test_missing_post_data(self):
         request = RequestFactory().post(
