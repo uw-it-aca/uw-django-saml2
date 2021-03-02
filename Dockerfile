@@ -1,4 +1,4 @@
-FROM acait/django-container:1.0.6 as django
+FROM gcr.io/uwit-mci-axdd/django-container:1.3.0 as app-container
 
 USER acait
 

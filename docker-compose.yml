@@ -1,16 +1,20 @@
-version: '3'
+version: '3.4'
 
 services:
   app:
     restart: always
-    build: .
+    build:
+      context: .
+      target: app-container
     volumes:
       - ./docker/dev_app:/app/dev_app
       - ./docker/dev_project:/app/dev_project
       - ./uw_saml:/app/uw_saml
     environment:
-      AUTH: ${AUTH:-SAML_MOCK}
+      PORT: 8000
+      AUTH: SAML_MOCK
     ports:
-      - "${RUNSERVER_PORT:-8000}:8000"
+      - "8000:8000"
+      - "8001:8001"
     stdin_open: true
     tty: true
