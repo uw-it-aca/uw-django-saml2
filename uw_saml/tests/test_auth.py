@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from django.conf import settings
 from django.urls import reverse, reverse_lazy, clear_url_caches
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied,\

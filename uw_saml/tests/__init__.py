@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 MOCK_SAML_ATTRIBUTES = {
     'urn:oid:0.9.2342.19200300.100.1.1': ['javerage'],
     'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': ['student'],
