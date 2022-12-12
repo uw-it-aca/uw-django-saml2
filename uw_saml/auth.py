@@ -36,6 +36,7 @@ class DjangoSAML(object):
         'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': 'affiliations',
         'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations',
         'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': 'isMemberOf',
+        'urn:oid:1.2.840.113994.200.45': 'uwEduEmail',
     }
     GROUP_NS = 'urn:mace:washington.edu:groups:'
 
@@ -110,12 +111,24 @@ class DjangoSAML(object):
         """
         self._implementation.process_response()
 
-        self._request.session['samlUserdata'] = self.get_attributes()
+        samlUserData = self.get_attributes()
+        self._request.session['samlUserdata'] = samlUserData
         self._request.session['samlNameId'] = self.get_nameid()
         self._request.session['samlSessionIndex'] = self.get_session_index()
 
         # Django login
         user = authenticate(self._request, remote_user=get_user(self._request))
+
+        if user and getattr(settings, 'SAML_USER_PROFILE', False):
+            if not user.first_name:
+                user.first_name = samlUserData.get('givenName')
+
+            if not user.last_name:
+                user.last_name = samlUserData.get('surname')
+
+            if not user.email:
+                user.email = samlUserData.get('email')
+
         login(self._request, user)
 
     def get_attributes(self):
