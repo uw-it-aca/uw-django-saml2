@@ -107,7 +107,8 @@ class DjangoSAML(object):
 
         # Update Django user model if implemented
         if user and hasattr(settings, 'SAML_USER_PROFILE_HOOK'):
-            update_func = import_string(settings['SAML_USER_PROFILE_HOOK'])
+            update_func = import_string(
+                getattr(settings, 'SAML_USER_PROFILE_HOOK'))
             update_func(user, attributes=samlUserData)
 
     def get_attributes(self):
