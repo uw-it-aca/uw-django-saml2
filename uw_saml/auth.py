@@ -129,6 +129,8 @@ class DjangoSAML(object):
             if not user.email:
                 user.email = samlUserData.get('email')
 
+            user.save()
+
         login(self._request, user)
 
     def get_attributes(self):
