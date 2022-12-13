@@ -14,7 +14,7 @@ from uw_saml.auth import (
     Django_Login_Mock_Saml2_Auth)
 from uw_saml.tests import (
     MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES, UW_SAML_PERMISSIONS,
-    DJANGO_LOGIN_MOCK_SAML)
+    DJANGO_LOGIN_MOCK_SAML, MOCK_SAML_PROFILE_ATTRIBUTES)
 import mock
 import sys
 from importlib import reload
@@ -78,6 +78,7 @@ class MockAuthTest(TestCase):
         self.assertRaises(AttributeError, auth.fake_method)
 
     @override_settings(
+        MOCK_SAML_ATTRIBUTES=MOCK_SAML_PROFILE_ATTRIBUTES,
         SAML_USER_PROFILE_HOOK='uw_saml.tests.test_auth.update_user')
     def test_profile_hook(self):
         self.assertEqual(self.request.user.first_name, None)
