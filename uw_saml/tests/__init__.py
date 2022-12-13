@@ -63,7 +63,7 @@ MOCK_SAML_PROFILE_ATTRIBUTES = {
 }
 
 
-def update_user(user, attributes):
+def update_user_profile(user, attributes):
     if 'givenName' in attributes:
         user.first_name = attributes.get('givenName')
 

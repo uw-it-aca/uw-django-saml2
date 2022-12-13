@@ -79,7 +79,7 @@ class MockAuthTest(TestCase):
 
     @override_settings(
         MOCK_SAML_ATTRIBUTES=MOCK_SAML_PROFILE_ATTRIBUTES,
-        SAML_USER_PROFILE_HOOK='uw_saml.tests.test_auth.update_user')
+        SAML_USER_PROFILE_HOOK='uw_saml.tests.update_user_profile')
     def test_profile_hook(self):
         auth = DjangoSAML(self.request)
         url = auth.login(return_to='/test')
