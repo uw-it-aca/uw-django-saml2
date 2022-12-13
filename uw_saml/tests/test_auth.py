@@ -81,11 +81,10 @@ class MockAuthTest(TestCase):
         MOCK_SAML_ATTRIBUTES=MOCK_SAML_PROFILE_ATTRIBUTES,
         SAML_USER_PROFILE_HOOK='uw_saml.tests.test_auth.update_user')
     def test_profile_hook(self):
-        self.assertEqual(self.request.user.first_name, None)
-        self.assertEqual(self.request.user.last_name, None)
-
         auth = DjangoSAML(self.request)
         url = auth.login(return_to='/test')
+        self.assertEquals(self.request.user.is_authenticated, True)
+        self.assertEquals(self.request.user.username, 'javerage')
         self.assertEqual(self.request.user.first_name, 'J')
         self.assertEqual(self.request.user.last_name, 'Average')
 
