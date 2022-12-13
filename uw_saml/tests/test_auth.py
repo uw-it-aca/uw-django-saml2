@@ -4,15 +4,17 @@
 
 from django.conf import settings
 from django.urls import reverse, reverse_lazy, clear_url_caches
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied,\
-    ImproperlyConfigured
+from django.core.exceptions import (
+    ImproperlyConfigured, PermissionDenied, ImproperlyConfigured)
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import TestCase, RequestFactory, override_settings
-from uw_saml.auth import DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth,\
-    Django_Login_Mock_Saml2_Auth
-from uw_saml.tests import MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES,\
-    UW_SAML_PERMISSIONS, DJANGO_LOGIN_MOCK_SAML
+from uw_saml.auth import (
+    DjangoSAML, OneLogin_Saml2_Auth, Mock_Saml2_Auth,
+    Django_Login_Mock_Saml2_Auth)
+from uw_saml.tests import (
+    MOCK_SAML_ATTRIBUTES, MOCK_SESSION_ATTRIBUTES, UW_SAML_PERMISSIONS,
+    DJANGO_LOGIN_MOCK_SAML)
 import mock
 import sys
 from importlib import reload
@@ -74,6 +76,17 @@ class MockAuthTest(TestCase):
     def test_nonexistent_method(self):
         auth = DjangoSAML(self.request)
         self.assertRaises(AttributeError, auth.fake_method)
+
+    @override_settings(
+        SAML_USER_PROFILE_HOOK='uw_saml.tests.test_auth.update_user')
+    def test_profile_hook(self):
+        self.assertEqual(self.request.user.first_name, None)
+        self.assertEqual(self.request.user.last_name, None)
+
+        auth = DjangoSAML(self.request)
+        url = auth.login(return_to='/test')
+        self.assertEqual(self.request.user.first_name, 'J')
+        self.assertEqual(self.request.user.last_name, 'Average')
 
 
 @override_settings(

@@ -10,8 +10,9 @@ MOCK_SAML_ATTRIBUTES = {
     'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': [
         'urn:mace:washington.edu:groups:u_test_group',
         'urn:mace:washington.edu:groups:u_test2_group'],
+    'urn:oid:2.5.4.4': ['Average'],
+    'urn:oid:2.5.4.42': ['J'],
 }
-
 
 MOCK_SESSION_ATTRIBUTES = {
     'uwnetid': ['javerage'],
@@ -50,3 +51,13 @@ DJANGO_LOGIN_MOCK_SAML = {
         }
     ]
 }
+
+
+def update_user(user, attributes):
+    if 'givenName' in attributes:
+        user.first_name = attributes.get('givenName')
+
+    if 'surname' in attributes:
+        user.last_name = attributes.get('surname')
+
+    user.save(update_fields=['first_name', 'last_name'])
