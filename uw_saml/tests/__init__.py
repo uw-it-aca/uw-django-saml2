@@ -1,6 +1,8 @@
 # Copyright 2022 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+from uw_saml.utils import get_attribute
+
 
 MOCK_SAML_ATTRIBUTES = {
     'urn:oid:0.9.2342.19200300.100.1.1': ['javerage'],
@@ -63,11 +65,13 @@ MOCK_SAML_PROFILE_ATTRIBUTES = {
 }
 
 
-def update_user_profile(user, attributes):
-    if 'givenName' in attributes:
-        user.first_name = attributes.get('givenName')
+def update_user_profile(user, request):
+    given_name = get_attribute(request, 'givenName')
+    if given_name is not None:
+        user.first_name = given_name
 
-    if 'surname' in attributes:
-        user.last_name = attributes.get('surname')
+    surname = get_attribute(request, 'surname')
+    if surname is not None:
+        user.last_name = surname
 
     user.save(update_fields=['first_name', 'last_name'])

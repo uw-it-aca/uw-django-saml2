@@ -96,8 +96,7 @@ class DjangoSAML(object):
         """
         self._implementation.process_response()
 
-        samlUserData = self.get_attributes()
-        self._request.session['samlUserdata'] = samlUserData
+        self._request.session['samlUserdata'] = self.get_attributes()
         self._request.session['samlNameId'] = self.get_nameid()
         self._request.session['samlSessionIndex'] = self.get_session_index()
 
@@ -105,11 +104,11 @@ class DjangoSAML(object):
         user = authenticate(self._request, remote_user=get_user(self._request))
         login(self._request, user)
 
-        # Update Django user model if implemented
+        # Call a function to update the Django user model if implemented
         if user and hasattr(settings, 'SAML_USER_PROFILE_HOOK'):
             update_func = import_string(
                 getattr(settings, 'SAML_USER_PROFILE_HOOK'))
-            update_func(user, attributes=samlUserData)
+            update_func(user, self._request)
 
     def get_attributes(self):
         """
