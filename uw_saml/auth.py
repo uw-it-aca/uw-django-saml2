@@ -9,8 +9,10 @@ from django.contrib.auth.models import User
 from django.core.exceptions import (
     ImproperlyConfigured, ObjectDoesNotExist, PermissionDenied)
 from django.urls import reverse_lazy
+from django.utils.module_loading import import_string
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from uw_saml.utils import get_user
+from uw_saml.attributes import ATTRIBUTE_MAP
 
 
 class DjangoSAML(object):
@@ -21,22 +23,6 @@ class DjangoSAML(object):
     FORWARDED_HOST = 'HTTP_X_FORWARDED_HOST'
     FORWARDED_PORT = 'HTTP_X_FORWARDED_PORT'
     FORWARDED_PROTO = 'HTTP_X_FORWARDED_PROTO'
-
-    ATTRIBUTE_MAP = {
-        'urn:oid:0.9.2342.19200300.100.1.1': 'uwnetid',
-        'urn:oid:1.3.6.1.4.1.5923.1.1.1.6': 'eppn',
-        'urn:oid:1.2.840.113994.200.24': 'uwregid',
-        'urn:oid:0.9.2342.19200300.100.1.3': 'email',
-        'urn:oid:2.16.840.1.113730.3.1.241': 'displayName',
-        'urn:oid:2.5.4.42': 'givenName',
-        'urn:oid:2.5.4.4': 'surname',
-        'urn:oid:1.2.840.113994.200.21': 'studentid',
-        'urn:oid:2.16.840.1.113730.3.1.3': 'employeeNumber',
-        'urn:oid:2.5.4.11': 'homeDepartment',
-        'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': 'affiliations',
-        'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': 'scopedAffiliations',
-        'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': 'isMemberOf',
-    }
     GROUP_NS = 'urn:mace:washington.edu:groups:'
 
     def __init__(self, request):
@@ -118,12 +104,18 @@ class DjangoSAML(object):
         user = authenticate(self._request, remote_user=get_user(self._request))
         login(self._request, user)
 
+        # Call a function to update the Django user model if implemented
+        if user and hasattr(settings, 'SAML_USER_PROFILE_HOOK'):
+            update_func = import_string(
+                getattr(settings, 'SAML_USER_PROFILE_HOOK'))
+            update_func(user, self._request)
+
     def get_attributes(self):
         """
         Overrides the implementation method to return a dictionary of SAML
         attributes, mapping the default names to friendlier names.
         """
-        attributes = {self.ATTRIBUTE_MAP.get(key, key): val for key, val in (
+        attributes = {ATTRIBUTE_MAP.get(key, key): val for key, val in (
             self._implementation.get_attributes().items())}
 
         if 'isMemberOf' in attributes:

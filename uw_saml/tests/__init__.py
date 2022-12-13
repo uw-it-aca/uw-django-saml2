@@ -1,6 +1,8 @@
 # Copyright 2022 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
+from uw_saml.utils import get_attribute
+
 
 MOCK_SAML_ATTRIBUTES = {
     'urn:oid:0.9.2342.19200300.100.1.1': ['javerage'],
@@ -11,7 +13,6 @@ MOCK_SAML_ATTRIBUTES = {
         'urn:mace:washington.edu:groups:u_test_group',
         'urn:mace:washington.edu:groups:u_test2_group'],
 }
-
 
 MOCK_SESSION_ATTRIBUTES = {
     'uwnetid': ['javerage'],
@@ -50,3 +51,27 @@ DJANGO_LOGIN_MOCK_SAML = {
         }
     ]
 }
+
+MOCK_SAML_PROFILE_ATTRIBUTES = {
+    'urn:oid:0.9.2342.19200300.100.1.1': ['javerage'],
+    'urn:oid:1.3.6.1.4.1.5923.1.1.1.1': ['student'],
+    'urn:oid:1.3.6.1.4.1.5923.1.1.1.6': ['javerage@washington.edu'],
+    'urn:oid:1.3.6.1.4.1.5923.1.1.1.9': ['student@washington.edu'],
+    'urn:oid:1.3.6.1.4.1.5923.1.5.1.1': [
+        'urn:mace:washington.edu:groups:u_test_group',
+        'urn:mace:washington.edu:groups:u_test2_group'],
+    'urn:oid:2.5.4.4': ['Average'],
+    'urn:oid:2.5.4.42': ['J'],
+}
+
+
+def update_user_profile(user, request):
+    given_name = get_attribute(request, 'givenName')
+    if given_name is not None:
+        user.first_name = given_name
+
+    surname = get_attribute(request, 'surname')
+    if surname is not None:
+        user.last_name = surname
+
+    user.save(update_fields=['first_name', 'last_name'])
