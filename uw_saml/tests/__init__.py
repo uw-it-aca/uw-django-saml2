@@ -65,13 +65,13 @@ MOCK_SAML_PROFILE_ATTRIBUTES = {
 }
 
 
-def update_user_profile(user, request):
+def update_user_profile(request):
     given_name = get_attribute(request, 'givenName')
     if given_name is not None:
-        user.first_name = given_name
+        request.user.first_name = given_name
 
     surname = get_attribute(request, 'surname')
     if surname is not None:
-        user.last_name = surname
+        request.user.last_name = surname
 
-    user.save(update_fields=['first_name', 'last_name'])
+    request.user.save(update_fields=['first_name', 'last_name'])
