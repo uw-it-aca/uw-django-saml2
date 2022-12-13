@@ -104,11 +104,11 @@ class DjangoSAML(object):
         user = authenticate(self._request, remote_user=get_user(self._request))
         login(self._request, user)
 
-        # Call a function to update the Django user model if implemented
-        if user and hasattr(settings, 'SAML_USER_PROFILE_HOOK'):
+        # Call a function to update local user models, if implemented
+        if hasattr(settings, 'SAML_USER_PROFILE_HOOK'):
             update_func = import_string(
                 getattr(settings, 'SAML_USER_PROFILE_HOOK'))
-            update_func(user, self._request)
+            update_func(self._request)
 
     def get_attributes(self):
         """

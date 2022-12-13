@@ -1,4 +1,4 @@
-FROM gcr.io/uwit-mci-axdd/django-container:1.4.0 as app-container
+FROM gcr.io/uwit-mci-axdd/django-container:1.4.1 as app-container
 
 USER acait
 
