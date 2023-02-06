@@ -4,7 +4,8 @@
 
 
 from django.conf import settings
-from django.conf.urls import re_path
+from django.conf.urls import include
+from django.urls import re_path
 from uw_saml.views import LoginView, LogoutView, SSOView, MockSSOLoginView
 
 
