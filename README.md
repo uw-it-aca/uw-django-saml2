@@ -48,7 +48,7 @@ Also, be sure to set `strict: True` for production usage!
 Add the uw_saml URLs to your `project/urls.py`:
 
 ```
-url(r'^saml/', include('uw_saml.urls')),
+re_path(r'^saml/', include('uw_saml.urls')),
 ```
 
 ### Register your app as an SP
