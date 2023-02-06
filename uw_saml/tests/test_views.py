@@ -190,7 +190,7 @@ class DjangoLoginViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_login_invalid(self):
-        req = RequestFactory().post(
+        request = RequestFactory().post(
             'login_django',
             data={
                 'username': 'test_username',
