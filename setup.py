@@ -21,8 +21,8 @@ setup(
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
-        'Django>=2.2,<4',
-        'python3-saml~=1.14',
+        'Django>=2.2,<5',
+        'python3-saml~=1.15',
         'mock'
     ],
     license='Apache License, Version 2.0',
