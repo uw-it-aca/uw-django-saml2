@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-
 import mock
 import json
 from django.conf import settings
@@ -20,15 +19,16 @@ CACHE_CONTROL = 'max-age=0, no-cache, no-store, must-revalidate'
 
 
 class LoginViewTest(TestCase):
-    def setUp(self):
-        self.request = RequestFactory().get(
-            reverse('saml_login'), HTTP_HOST='example.uw.edu')
-        SessionMiddleware().process_request(self.request)
-        self.request.session.save()
-
     def test_login(self):
+        request = RequestFactory().get(
+            reverse('saml_login'), HTTP_HOST='example.uw.edu')
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
+        request.session.save()
+
         view_instance = LoginView.as_view()
-        response = view_instance(self.request)
+        response = view_instance(request)
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleSignOnService']['url'],
                       response.url)
@@ -37,8 +37,10 @@ class LoginViewTest(TestCase):
     def test_missing_request_data(self):
         # Missing HTTP_HOST
         request = RequestFactory().get(reverse('saml_login'))
-        SessionMiddleware().process_request(request)
-        self.request.session.save()
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
+        request.session.save()
 
         view_instance = LoginView.as_view()
         response = view_instance(request).render()
@@ -50,17 +52,18 @@ class LoginViewTest(TestCase):
 
 
 class LogoutViewTest(TestCase):
-    def setUp(self):
-        self.request = RequestFactory().get(
-            reverse('saml_logout'), HTTP_HOST='example.uw.edu')
-        SessionMiddleware().process_request(self.request)
-        self.request.session['samlNameId'] = ''
-        self.request.session['samlSessionIndex'] = ''
-        self.request.session.save()
-
     def test_logout(self):
+        request = RequestFactory().get(
+            reverse('saml_logout'), HTTP_HOST='example.uw.edu')
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
+        request.session['samlNameId'] = ''
+        request.session['samlSessionIndex'] = ''
+        request.session.save()
+
         view_instance = LogoutView.as_view()
-        response = view_instance(self.request)
+        response = view_instance(request)
         self.assertEquals(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleLogoutService']['url'],
                       response.url)
@@ -69,8 +72,12 @@ class LogoutViewTest(TestCase):
     def test_missing_request_data(self):
         # Missing HTTP_HOST
         request = RequestFactory().get(reverse('saml_logout'))
-        SessionMiddleware().process_request(request)
-        self.request.session.save()
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
+        request.session['samlNameId'] = ''
+        request.session['samlSessionIndex'] = ''
+        request.session.save()
 
         view_instance = LogoutView.as_view()
         response = view_instance(request).render()
@@ -82,21 +89,22 @@ class LogoutViewTest(TestCase):
 
 
 class SSOViewTest(TestCase):
-    def setUp(self):
-        self.request = RequestFactory().post(
-            reverse('saml_sso'),
-            data={'RelayState': '/private'},
-            HTTP_HOST='example.uw.edu')
-        SessionMiddleware().process_request(self.request)
-        self.request.session.save()
-
     @mock.patch.object(OneLogin_Saml2_Auth, 'get_attributes')
     @mock.patch.object(OneLogin_Saml2_Auth, 'process_response')
     def test_sso(self, mock_process_response, mock_get_attributes):
         mock_get_attributes.return_value = MOCK_SAML_ATTRIBUTES
 
+        request = RequestFactory().post(
+            reverse('saml_sso'),
+            data={'RelayState': '/private'},
+            HTTP_HOST='example.uw.edu')
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
+        request.session.save()
+
         view_instance = SSOView.as_view()
-        response = view_instance(self.request)
+        response = view_instance(request)
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, 'http://example.uw.edu/private')
 
@@ -105,7 +113,9 @@ class SSOViewErrorTest(TestCase):
     def test_missing_request_data(self):
         # Missing HTTP_HOST
         request = RequestFactory().post(reverse('saml_sso'))
-        SessionMiddleware().process_request(request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
         request.session.save()
 
         view_instance = SSOView.as_view()
@@ -119,7 +129,9 @@ class SSOViewErrorTest(TestCase):
     def test_missing_post_data(self):
         request = RequestFactory().post(
             reverse('saml_sso'), HTTP_HOST='example.uw.edu')
-        SessionMiddleware().process_request(request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
         request.session.save()
 
         view_instance = SSOView.as_view()
@@ -130,7 +142,9 @@ class SSOViewErrorTest(TestCase):
         request = RequestFactory().post(
             reverse('saml_sso'), data={'SAMLResponse': ''},
             HTTP_HOST='idp.uw.edu')
-        SessionMiddleware().process_request(request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
         request.session.save()
 
         view_instance = SSOView.as_view()
@@ -140,7 +154,9 @@ class SSOViewErrorTest(TestCase):
     def test_invalid_http_method(self):
         request = RequestFactory().get(
             reverse('saml_sso'), HTTP_HOST='idp.uw.edu')
-        SessionMiddleware().process_request(request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
         request.session.save()
 
         view_instance = SSOView.as_view()
@@ -154,41 +170,41 @@ class SSOViewErrorTest(TestCase):
     AUTHENTICATION_BACKENDS=('django.contrib.auth.backends.ModelBackend',)
 )
 class DjangoLoginViewTest(TestCase):
-    def setUp(self):
-        self.request_factory = RequestFactory()
-
     def tearDown(self):
         User.objects.all().delete()
 
     def test_login_valid(self):
-        req = self.request_factory.post(
+        request = RequestFactory().post(
             'login_django',
             data={'username': 'test_username', 'password': 'test_password'},
         )
-        SessionMiddleware().process_request(req)
-        req.session.save()
-        req._dont_enforce_csrf_checks = True
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(request)
+        request.session.save()
+        request._dont_enforce_csrf_checks = True
 
         # Initalized so the users are loaded
-        Django_Login_Mock_Saml2_Auth(req)
-        resp = MockSSOLoginView.as_view()(req)
-        self.assertEqual(resp.status_code, 302)
+        Django_Login_Mock_Saml2_Auth(request)
+        response = MockSSOLoginView.as_view()(request)
+        self.assertEqual(response.status_code, 302)
 
     def test_login_invalid(self):
-        req = self.request_factory.post(
+        req = RequestFactory().post(
             'login_django',
             data={
                 'username': 'test_username',
                 'password': 'test_wrong_password'
             },
         )
-        SessionMiddleware().process_request(req)
-        req.session.save()
-        AuthenticationMiddleware().process_request(req)
-        req._dont_enforce_csrf_checks = True
-        # req.user = AnonymousUser()
+        get_response = mock.MagicMock()
+        session_middleware = SessionMiddleware(get_response)
+        response = session_middleware(request)
+        authn_middleware = AuthenticationMiddleware(get_response)
+        response = session_middleware(request)
+        request._dont_enforce_csrf_checks = True
 
         # Initalized so the users are loaded
-        Django_Login_Mock_Saml2_Auth(req)
-        resp = MockSSOLoginView.as_view()(req)
-        self.assertEqual(resp.status_code, 200)
+        Django_Login_Mock_Saml2_Auth(request)
+        response = MockSSOLoginView.as_view()(request)
+        self.assertEqual(response.status_code, 200)

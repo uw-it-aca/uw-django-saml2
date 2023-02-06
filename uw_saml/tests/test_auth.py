@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-
 from django.conf import settings
 from django.urls import reverse, reverse_lazy, clear_url_caches
 from django.core.exceptions import (
@@ -27,7 +26,9 @@ class MockAuthTest(TestCase):
         self.request = RequestFactory().post(
             reverse('saml_sso'), HTTP_HOST='example.uw.edu')
         self.request.user = None
-        SessionMiddleware().process_request(self.request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(self.request)
         self.request.session.save()
 
     def test_implementation(self):
@@ -103,7 +104,9 @@ class DjangoLoginAuthTest(TestCase):
         self.request = RequestFactory().post(
             reverse('saml_sso'), data={'SAMLResponse': ''},
             HTTP_HOST='idp.uw.edu')
-        SessionMiddleware().process_request(self.request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(self.request)
         self.request.session.save()
 
     def test_implementation(self):
@@ -180,7 +183,9 @@ class LiveAuthTest(TestCase):
         self.request = RequestFactory().post(
             reverse('saml_sso'), data={'SAMLResponse': ''},
             HTTP_HOST='idp.uw.edu')
-        SessionMiddleware().process_request(self.request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(self.request)
         self.request.session.save()
 
     @override_settings()

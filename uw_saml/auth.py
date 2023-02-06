@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-
 from django.conf import settings
 from django.contrib.auth import (
     authenticate, login, logout, REDIRECT_FIELD_NAME)

@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from uw_saml.utils import is_member_of_group

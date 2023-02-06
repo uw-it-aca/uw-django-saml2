@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -11,6 +10,7 @@ from django.test import TestCase, RequestFactory
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 from uw_saml.decorators import group_required
+import mock
 
 
 @method_decorator(group_required('u_test_group'), name='dispatch')
@@ -23,7 +23,9 @@ class DecoratorTest(TestCase):
     def setUp(self):
         self.request = RequestFactory().get('/')
         self.request.user = User()
-        SessionMiddleware().process_request(self.request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(self.request)
         self.request.session.save()
 
     def test_group_required_noauth(self):

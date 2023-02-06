@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-
 from django.conf import settings
 from django.conf.urls import include
 from django.urls import re_path
