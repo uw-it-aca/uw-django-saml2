@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -26,7 +26,9 @@ class MockAuthTest(TestCase):
         self.request = RequestFactory().post(
             reverse('saml_sso'), HTTP_HOST='example.uw.edu')
         self.request.user = None
-        SessionMiddleware().process_request(self.request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(self.request)
         self.request.session.save()
 
     def test_implementation(self):
@@ -102,7 +104,9 @@ class DjangoLoginAuthTest(TestCase):
         self.request = RequestFactory().post(
             reverse('saml_sso'), data={'SAMLResponse': ''},
             HTTP_HOST='idp.uw.edu')
-        SessionMiddleware().process_request(self.request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(self.request)
         self.request.session.save()
 
     def test_implementation(self):
@@ -179,7 +183,9 @@ class LiveAuthTest(TestCase):
         self.request = RequestFactory().post(
             reverse('saml_sso'), data={'SAMLResponse': ''},
             HTTP_HOST='idp.uw.edu')
-        SessionMiddleware().process_request(self.request)
+        get_response = mock.MagicMock()
+        middleware = SessionMiddleware(get_response)
+        response = middleware(self.request)
         self.request.session.save()
 
     @override_settings()
