@@ -23,6 +23,7 @@ setup(
     install_requires=[
         'Django>=3.2,<5',
         'python3-saml~=1.16',
+        'lxml<5',
         'mock'
     ],
     license='Apache License, Version 2.0',
