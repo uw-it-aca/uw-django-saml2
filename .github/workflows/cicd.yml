@@ -43,12 +43,13 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
       matrix:
         python-version:
+          - '3.8'
           - '3.9'
           - '3.10'
           - '3.11'
@@ -69,7 +70,7 @@ jobs:
         run: |
           pip install -U setuptools
           sudo apt-get update -qq
-          sudo apt-get install -qq swig python${{ matrix.python-version }}-dev libxml2-dev libxmlsec1-dev
+          sudo apt-get install -qq swig python-dev libxml2-dev libxmlsec1-dev
           python -m pip install --upgrade pip
           pip install -e .
           pip install coverage coveralls==3.3.1
@@ -111,7 +112,7 @@ jobs:
 
     needs: test
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout Repo
