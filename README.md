@@ -32,7 +32,7 @@ LOGIN_URL = reverse_lazy('saml_login')
 ### Add your SP config
 
 This app uses Django settings to configure the SP and IdP. Copy the `UW_SAML`
-setting dict in `test/settings.py` to your `project/settings.py`.
+setting dict in `conf/settings.py` to your `project/settings.py`.
 
 You will need to update these settings to the correct values for your SP:
 
@@ -48,7 +48,7 @@ Also, be sure to set `strict: True` for production usage!
 Add the uw_saml URLs to your `project/urls.py`:
 
 ```
-re_path(r'^saml/', include('uw_saml.urls')),
+path('saml/', include('uw_saml.urls')),
 ```
 
 ### Register your app as an SP
