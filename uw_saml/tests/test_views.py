@@ -29,7 +29,7 @@ class LoginViewTest(TestCase):
 
         view_instance = LoginView.as_view()
         response = view_instance(request)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleSignOnService']['url'],
                       response.url)
         self.assertIn(CACHE_CONTROL, response.get('Cache-Control'))
@@ -64,7 +64,7 @@ class LogoutViewTest(TestCase):
 
         view_instance = LogoutView.as_view()
         response = view_instance(request)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertIn(settings.UW_SAML['idp']['singleLogoutService']['url'],
                       response.url)
         self.assertIn(CACHE_CONTROL, response.get('Cache-Control'))
@@ -105,8 +105,8 @@ class SSOViewTest(TestCase):
 
         view_instance = SSOView.as_view()
         response = view_instance(request)
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(response.url, 'http://example.uw.edu/private')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, 'http://example.uw.edu/private')
 
 
 class SSOViewErrorTest(TestCase):
@@ -161,7 +161,7 @@ class SSOViewErrorTest(TestCase):
 
         view_instance = SSOView.as_view()
         response = view_instance(request)
-        self.assertEquals(response.status_code, 405)
+        self.assertEqual(response.status_code, 405)
 
 
 @override_settings(

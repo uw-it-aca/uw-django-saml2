@@ -33,7 +33,7 @@ class DecoratorTest(TestCase):
 
         view_instance = GroupRequiredView.as_view()
         response = view_instance(self.request)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('%s?next=/' % settings.LOGIN_URL, response.url,
                       'Login required')
 
@@ -42,7 +42,7 @@ class DecoratorTest(TestCase):
 
         view_instance = GroupRequiredView.as_view()
         response = view_instance(self.request)
-        self.assertEquals(response.status_code, 401)
+        self.assertEqual(response.status_code, 401)
 
     def test_group_required_withgroups(self):
         self.request.session['samlUserdata'] = {
@@ -50,7 +50,7 @@ class DecoratorTest(TestCase):
 
         view_instance = GroupRequiredView.as_view()
         response = view_instance(self.request)
-        self.assertEquals(response.status_code, 401)
+        self.assertEqual(response.status_code, 401)
 
     def test_group_required_ok(self):
         self.request.session['samlUserdata'] = {
@@ -58,5 +58,5 @@ class DecoratorTest(TestCase):
 
         view_instance = GroupRequiredView.as_view()
         response = view_instance(self.request)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, b'OK')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'OK')
