@@ -18,43 +18,43 @@ class UtilsTest(TestCase):
         self.request.session['samlUserdata'] = MOCK_SESSION_ATTRIBUTES
 
     def test_get_attribute(self):
-        self.assertEquals(get_attribute(self.request, 'email'), None)
-        self.assertEquals(get_attribute(self.request, 'affiliations'),
-                          ['student'])
+        self.assertEqual(get_attribute(self.request, 'email'), None)
+        self.assertEqual(get_attribute(self.request, 'affiliations'),
+                         ['student'])
 
     def test_get_user(self):
         # no setting, default to uwnetid
-        self.assertEquals(get_user(self.request), 'javerage')
+        self.assertEqual(get_user(self.request), 'javerage')
 
         with self.settings(SAML_USER_ATTRIBUTE='uwnetid'):
-            self.assertEquals(get_user(self.request), 'javerage')
+            self.assertEqual(get_user(self.request), 'javerage')
 
         with self.settings(SAML_USER_ATTRIBUTE='eppn'):
-            self.assertEquals(get_user(self.request),
-                              'javerage@washington.edu')
+            self.assertEqual(get_user(self.request),
+                             'javerage@washington.edu')
 
     def test_get_user_without_uwnetid(self):
         self.request.session['samlUserdata'] = {}
-        self.assertEquals(get_user(self.request), None)
+        self.assertEqual(get_user(self.request), None)
 
     def test_get_user_without_saml(self):
         del self.request.session['samlUserdata']
-        self.assertEquals(get_user(self.request), None)
+        self.assertEqual(get_user(self.request), None)
 
     def test_is_member_of_group(self):
-        self.assertEquals(is_member_of_group(self.request, 'u_test_group'),
-                          True)
-        self.assertEquals(is_member_of_group(self.request, 'u_test_nope'),
-                          False)
-        self.assertEquals(is_member_of_group(self.request, ''), False)
-        self.assertEquals(is_member_of_group(self.request, None), False)
+        self.assertEqual(is_member_of_group(self.request, 'u_test_group'),
+                         True)
+        self.assertEqual(is_member_of_group(self.request, 'u_test_nope'),
+                         False)
+        self.assertEqual(is_member_of_group(self.request, ''), False)
+        self.assertEqual(is_member_of_group(self.request, None), False)
 
     def test_is_member_of_group_without_ismemberof(self):
         self.request.session['samlUserdata'] = {}
-        self.assertEquals(is_member_of_group(self.request, 'u_test_group'),
-                          False)
+        self.assertEqual(is_member_of_group(self.request, 'u_test_group'),
+                         False)
 
     def test_is_member_of_group_without_saml(self):
         del self.request.session['samlUserdata']
-        self.assertEquals(is_member_of_group(self.request, 'u_test_group'),
-                          False)
+        self.assertEqual(is_member_of_group(self.request, 'u_test_group'),
+                         False)

@@ -34,12 +34,12 @@ class MockAuthTest(TestCase):
     def test_implementation(self):
         auth = DjangoSAML(self.request)
         self.assertIsInstance(auth._implementation, Mock_Saml2_Auth)
-        self.assertEquals(auth.get_nameid(), 'mock-nameid')
-        self.assertEquals(auth.get_session_index(), 'mock-session-index')
+        self.assertEqual(auth.get_nameid(), 'mock-nameid')
+        self.assertEqual(auth.get_session_index(), 'mock-session-index')
 
     def test_get_attributes(self):
         auth = DjangoSAML(self.request)
-        self.assertEquals(auth.get_attributes(), {
+        self.assertEqual(auth.get_attributes(), {
             'affiliations': ['student'],
             'eppn': ['javerage@washington.edu'], 'uwnetid': ['javerage'],
             'scopedAffiliations': ['student@washington.edu'],
@@ -47,7 +47,7 @@ class MockAuthTest(TestCase):
 
         with self.settings(MOCK_SAML_ATTRIBUTES=MOCK_SESSION_ATTRIBUTES):
             auth = DjangoSAML(self.request)
-            self.assertEquals(auth.get_attributes(), {
+            self.assertEqual(auth.get_attributes(), {
                 'affiliations': ['student'],
                 'eppn': ['javerage@washington.edu'], 'uwnetid': ['javerage'],
                 'scopedAffiliations': ['student@washington.edu'],
@@ -56,24 +56,24 @@ class MockAuthTest(TestCase):
     def test_login(self):
         auth = DjangoSAML(self.request)
         url = auth.login(return_to='/test')
-        self.assertEquals(url, '/test')
-        self.assertEquals(self.request.user.is_authenticated, True)
-        self.assertEquals(self.request.user.username, 'javerage')
+        self.assertEqual(url, '/test')
+        self.assertEqual(self.request.user.is_authenticated, True)
+        self.assertEqual(self.request.user.username, 'javerage')
 
         # Missing return_to arg
         auth = DjangoSAML(self.request)
-        self.assertEquals(auth.login(), '')
+        self.assertEqual(auth.login(), '')
 
     def test_logout(self):
         auth = DjangoSAML(self.request)
         url = auth.logout(return_to='/test')
-        self.assertEquals(url, '/test')
-        self.assertEquals(self.request.user.is_authenticated, False)
-        self.assertEquals(self.request.user.username, '')
+        self.assertEqual(url, '/test')
+        self.assertEqual(self.request.user.is_authenticated, False)
+        self.assertEqual(self.request.user.username, '')
 
         # Missing return_to arg
         auth = DjangoSAML(self.request)
-        self.assertEquals(auth.logout(), '')
+        self.assertEqual(auth.logout(), '')
 
     def test_nonexistent_method(self):
         auth = DjangoSAML(self.request)
@@ -85,8 +85,8 @@ class MockAuthTest(TestCase):
     def test_profile_hook(self):
         auth = DjangoSAML(self.request)
         url = auth.login(return_to='/test')
-        self.assertEquals(self.request.user.is_authenticated, True)
-        self.assertEquals(self.request.user.username, 'javerage')
+        self.assertEqual(self.request.user.is_authenticated, True)
+        self.assertEqual(self.request.user.username, 'javerage')
         self.assertEqual(self.request.user.first_name, 'J')
         self.assertEqual(self.request.user.last_name, 'Average')
 
@@ -142,7 +142,7 @@ class DjangoLoginAuthTest(TestCase):
     def test_get_attributes(self):
         auth = DjangoSAML(self.request)
         auth._implementation.username = 'test_username'
-        self.assertEquals(
+        self.assertEqual(
             auth.get_attributes(),
             settings.DJANGO_LOGIN_MOCK_SAML['SAML_USERS'][0]['MOCK_ATTRIBUTES']
         )
@@ -155,24 +155,24 @@ class DjangoLoginAuthTest(TestCase):
 
     def test_get_nameid(self):
         auth = DjangoSAML(self.request)
-        self.assertEquals(
+        self.assertEqual(
             auth.get_nameid(),
             'test-mock-nameid'
         )
         del settings.DJANGO_LOGIN_MOCK_SAML['NAME_ID']
-        self.assertEquals(
+        self.assertEqual(
             auth.get_nameid(),
             'mock-nameid'
         )
 
     def test_get_session_index(self):
         auth = DjangoSAML(self.request)
-        self.assertEquals(
+        self.assertEqual(
             auth.get_session_index(),
             'test-mock-session'
         )
         del settings.DJANGO_LOGIN_MOCK_SAML['SESSION_INDEX']
-        self.assertEquals(
+        self.assertEqual(
             auth.get_session_index(),
             'mock-session'
         )
@@ -213,7 +213,7 @@ class LiveAuthTest(TestCase):
         mock_attributes.return_value = MOCK_SAML_ATTRIBUTES
 
         auth = DjangoSAML(self.request)
-        self.assertEquals(auth.get_attributes(), {
+        self.assertEqual(auth.get_attributes(), {
             'affiliations': ['student'],
             'eppn': ['javerage@washington.edu'], 'uwnetid': ['javerage'],
             'scopedAffiliations': ['student@washington.edu'],

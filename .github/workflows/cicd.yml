@@ -94,7 +94,7 @@ jobs:
       - name: Run Tests
         run: |
           python -m compileall ${APP_NAME}/
-          coverage run --source=${APP_NAME}/ manage.py test ${APP_NAME}
+          python -Wd -m coverage run --source=${APP_NAME}/ manage.py test ${APP_NAME}
 
       - name: Report Test Coverage
         if: |
