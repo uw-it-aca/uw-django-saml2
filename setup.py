@@ -14,20 +14,19 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 url = 'https://github.com/uw-it-aca/uw-django-saml2'
 setup(
-    name='UW-Django-SAML2',
+    name='uw-django-saml2',
     version=VERSION,
     packages=['uw_saml'],
     author="UW-IT T&LS",
     author_email="aca-it@uw.edu",
     include_package_data=True,
     install_requires=[
-        'Django>=3.2,<5',
+        'django>=3.2,<5',
         'python3-saml~=1.16',
-        'lxml<5',
         'mock'
     ],
     license='Apache License, Version 2.0',
-    description=('UW-Django-SAML2'),
+    description=('Django wrapper for python3-saml'),
     long_description=README,
     url=url,
     classifiers=[
