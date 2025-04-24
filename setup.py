@@ -23,6 +23,8 @@ setup(
     install_requires=[
         'django>=3.2,<6',
         'python3-saml~=1.16',
+        'lxml==5.3.1'
+        'xmlsec==1.3.14',
         'mock'
     ],
     license='Apache License, Version 2.0',
